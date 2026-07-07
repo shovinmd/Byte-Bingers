@@ -1,205 +1,527 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Discovery</title>
-    <style>
-   /* Global styles */
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: Arial, sans-serif;
-}
-
-/* Background Container */
-.background-container {
-    background-image: url('./output.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 100vh;
-    color: rgb(8, 0, 0);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    padding: 20px;
-}
-
-/* Navigation Bar */
-.navigation nav {
-    position: absolute;
-    top: 1rem;
-    right: 2rem;
-    display: flex;
-    gap: 1rem;
-}
-
-.navigation nav a {
-    color: white;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: bold;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    transition: background 0.3s ease;
-}
-
-.navigation nav a:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-/* Hero Content */
-.content h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-    opacity: 0;
-    transform: translateY(20px);
-    animation: slideIn 1.5s ease-out forwards;
-    color: white; /* White color for the heading */
-}
-
-/* Search Bar */
-.search-bar input {
-    padding: 0.8rem 1rem;
-    font-size: 1rem;
-    border-radius: 5px;
-    border: none;
-    width: 300px;
-    max-width: 80%;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: slideIn 1.5s ease-out 0.5s forwards;
-}
-
-/* Keyframe for animation */
-@keyframes slideIn {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserve Your Table | Byte-Bingers Culinary Concierge</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    /* Custom hero style for Landing Page */
+    .hero-section {
+      position: relative;
+      min-height: 75vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem 2rem;
+      background: linear-gradient(rgba(11, 12, 16, 0.7), rgba(11, 12, 16, 0.95)), 
+                  url('https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1920&auto=format&fit=crop') no-repeat center center/cover;
     }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      max-width: 900px;
+      line-height: 1.2;
     }
-}
 
-/* Restaurant Card */
-.restaurant-cards {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 2rem;
-    margin-top: 2rem;
-}
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin-bottom: 3rem;
+      font-weight: 300;
+    }
 
-.restaurant-card {
-    display: flex;
-    flex-direction: column;
-    background: rgba(255, 255, 255, 0.7); /* Translucent background for the card */
-    border-radius: 10px;
-    width: 100%;
-    max-width: 300px;
-    padding: 20px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-    opacity: 0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: left;
+    .search-filter-container {
+      width: 100%;
+      max-width: 750px;
+      margin-top: 1rem;
+    }
 
-    opacity: 0;
-    transform: translateY(20px);
-    animation: slideIn 1.5s ease-out 1s forwards;
-}
+    .search-box-wrapper {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
 
-.restaurant-card img {
-    border-radius: 10px;
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    margin-bottom: 15px;
-}
+    .search-box-wrapper .input-premium {
+      padding: 1.2rem 1.5rem 1.2rem 3.5rem;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      background: rgba(25, 26, 30, 0.85);
+      border: 1px solid var(--border-glass);
+      backdrop-filter: blur(12px);
+    }
 
-/* Title color change to white */
-.restaurant-card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-    color: white; /* White color for the title */
-}
+    .search-box-wrapper .input-premium:focus {
+      border-color: var(--accent-amber-start);
+      box-shadow: 0 0 20px rgba(255, 179, 71, 0.2);
+    }
 
-/* Text inside the card changes to black */
-.restaurant-card p {
-    font-size: 1rem;
-    color: black; /* Black color for the text */
-    margin-bottom: 15px;
-}
+    .search-icon {
+      position: absolute;
+      left: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      pointer-events: none;
+    }
 
-.restaurant-card a {
-    color: #28a745;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
+    /* Filter Pills */
+    .filter-pills-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
 
-.restaurant-card a:hover {
-    color: #218838;
-}
+    .filter-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      padding: 0.6rem 1.2rem;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-    </style>
+    .filter-pill:hover,
+    .filter-pill.active {
+      background: linear-gradient(135deg, var(--accent-amber-start) 0%, var(--accent-amber-end) 100%);
+      color: #000;
+      border-color: transparent;
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(240, 120, 60, 0.3);
+    }
+
+    /* Discovery Section */
+    .discovery-section {
+      padding: 4rem 4rem 8rem 4rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 3rem;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(to right, var(--accent-amber-start), var(--accent-amber-end));
+    }
+
+    /* Cards Grid */
+    .restaurant-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2.5rem;
+    }
+
+    .restaurant-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .restaurant-image-wrapper {
+      height: 200px;
+      position: relative;
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: var(--bg-glass-heavy);
+      border: 1px solid var(--border-glass);
+      backdrop-filter: blur(8px);
+      padding: 0.4rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-content {
+      padding: 1.5rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .restaurant-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .restaurant-cuisine {
+      color: var(--accent-amber-start);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .restaurant-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+    }
+
+    .star-icon {
+      color: var(--accent-amber-start);
+    }
+
+    .restaurant-name {
+      font-size: 1.4rem;
+      margin-bottom: 0.8rem;
+      line-height: 1.3;
+    }
+
+    .restaurant-desc {
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-glass);
+      padding-top: 1.2rem;
+      margin-top: auto;
+    }
+
+    .restaurant-loc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-view-details {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-view-details:hover {
+      color: var(--accent-amber-start);
+    }
+
+    /* Empty state */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      display: none;
+    }
+
+    .empty-state h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+  </style>
 </head>
 <body>
-    <div class="background-container">
-        <header class="navigation">
-            <nav>
-                <a href="./login.html">Admin Login</a>
-                <a href="./signup.html">User Signup</a>
-                <a href="./booking.html">Book Now</a>
-            </nav>
-        </header>
-        <header class="content">w
-            <h1>Discover The Best Restaurant, Cuisine & Dish</h1>
-            <div class="search-bar">
-                <input type="text" placeholder="Search for restaurant, cuisine or a dish">
-            </div>
-        </header>
 
-        <!-- Restaurant Cards -->
-        <div class="restaurant-cards">
-            <div class="restaurant-card">
-                <img src="https://www.theworlds50best.com/discovery/filestore/jpg/Aer%20Bar%20_%20Lounge-Mumbai-India-1.jpg" alt="Restaurant 1">
-                <h2>Aer Bar & Lounge</h2>
-                <p>Mumbai, India
+  <!-- Premium Reusable Navbar Container -->
+  <div id="premium-navbar-container"></div>
 
-                    For the most stylish open-air drinking experience in Mumbai, 
-                    there’s no better option than Aer Bar & Lounge, set atop the Four Seasons Hotel on the 34th floor.</p>
-                <a href="#">View Details</a>
-            </div>
-            <div class="restaurant-card">
-                <img src="./inside-view-of-lagoon.jpg" alt="Restaurant 2">
-                <h2>Mabruk - The Mediterranean restaurant</h2>
-                <p>This Lebanese offing sets the mood with its casual low seating on a wooden deck and a spectacular 
-                    view of the lagoon area, the pillar less clear-to-the sky dome as well as the other restaurants.</p>
-                <a href="#">View Details</a>
-            </div>
-            <div class="restaurant-card">
-                <img src="./photo1jpg.jpg" alt="Restaurant 3">
-                <h2>Lord of the Drinks</h2>
-                <p>Flaunting the longest island bar in all of Asia,
-                     200ft iconic bar, Lord of the Drinks Lower Parel is the bedazzled destination.</p>
-                <a href="#">View Details</a>
-            </div>
-            <div class="restaurant-card">
-                <img src="./peshawri.jpg" alt="Restaurant 4">
-                <h2>At a glance</h2>
-                <p>The romance of the rugged North West Frontier of India comes alive at this authentic,
-                     award winning restaurant, making it a landmark dining destination in Mumbai.</p>
-                <a href="#">View Details</a>
-            </div>
-        </div>
+  <!-- Hero Section -->
+  <header class="hero-section">
+    <h1 class="hero-title animate-fade-slide stagger-1">
+      Reserve Your Table at the World's <span class="text-shimmer">Finest Culinary Destinations</span>
+    </h1>
+    <p class="hero-subtitle animate-fade-slide stagger-2">
+      Indulge in a curated selection of Michelin-star establishments, ambient lounges, and scenic rooftop dining.
+    </p>
+
+    <!-- Intelligent Search & Filters -->
+    <div class="search-filter-container animate-fade-slide stagger-3">
+      <div class="search-box-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="restaurant-search" class="input-premium" placeholder="Search for restaurant, cuisine, location or key feature...">
+      </div>
+
+      <div class="filter-pills-wrapper">
+        <button class="filter-pill active" data-filter="all">All Establishments</button>
+        <button class="filter-pill" data-filter="lounge">Lounges</button>
+        <button class="filter-pill" data-filter="mediterranean">Mediterranean</button>
+        <button class="filter-pill" data-filter="traditional">Fine Dining</button>
+        <button class="filter-pill" data-filter="mumbai">Mumbai Local</button>
+      </div>
     </div>
+  </header>
+
+  <!-- Discovery Grid -->
+  <main class="discovery-section">
+    <div class="section-header animate-fade-slide stagger-4">
+      <h2 class="section-title">Curated For You</h2>
+      <p style="font-size: 0.95rem;">Showing live reservation availability</p>
+    </div>
+
+    <div class="restaurant-grid animate-fade-slide stagger-5" id="restaurant-grid">
+      
+      <!-- Aer Bar & Lounge -->
+      <article class="restaurant-card card-premium" data-cuisine="lounge" data-location="mumbai">
+        <div class="restaurant-image-wrapper img-zoom-container">
+          <img src="https://www.theworlds50best.com/discovery/filestore/jpg/Aer%20Bar%20_%20Lounge-Mumbai-India-1.jpg" alt="Aer Bar & Lounge">
+          <span class="card-badge">
+            <span class="indicator-dot"></span> Live Seating Available
+          </span>
+        </div>
+        <div class="card-content">
+          <div class="restaurant-meta">
+            <span class="restaurant-cuisine">Lounge & Rooftop</span>
+            <span class="restaurant-rating">
+              <span class="star-icon">★</span> 4.9
+            </span>
+          </div>
+          <h3 class="restaurant-name">Aer Bar & Lounge</h3>
+          <p class="restaurant-desc">
+            For the most stylish open-air drinking experience in Mumbai, there’s no better option than Aer Bar & Lounge, set atop the Four Seasons Hotel on the 34th floor.
+          </p>
+          <div class="card-footer">
+            <span class="restaurant-loc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              Mumbai, India
+            </span>
+            <a href="restaurant-details.html?id=aer-bar" class="btn-view-details">
+              View Details ➔
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Mabruk -->
+      <article class="restaurant-card card-premium" data-cuisine="mediterranean" data-location="mumbai">
+        <div class="restaurant-image-wrapper img-zoom-container">
+          <img src="./inside-view-of-lagoon.jpg" alt="Mabruk">
+          <span class="card-badge">
+            <span class="indicator-dot"></span> Live Seating Available
+          </span>
+        </div>
+        <div class="card-content">
+          <div class="restaurant-meta">
+            <span class="restaurant-cuisine">Mediterranean</span>
+            <span class="restaurant-rating">
+              <span class="star-icon">★</span> 4.7
+            </span>
+          </div>
+          <h3 class="restaurant-name">Mabruk</h3>
+          <p class="restaurant-desc">
+            This Lebanese offering sets the mood with its casual low seating on a wooden deck, spectacular view of the lagoon area, and a pillar-less clear-to-the-sky dome.
+          </p>
+          <div class="card-footer">
+            <span class="restaurant-loc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              Mumbai, India
+            </span>
+            <a href="restaurant-details.html?id=mabruk" class="btn-view-details">
+              View Details ➔
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Lord of the Drinks -->
+      <article class="restaurant-card card-premium" data-cuisine="lounge" data-location="mumbai">
+        <div class="restaurant-image-wrapper img-zoom-container">
+          <img src="./photo1jpg.jpg" alt="Lord of the Drinks">
+          <span class="card-badge">
+            <span class="indicator-dot"></span> Live Seating Available
+          </span>
+        </div>
+        <div class="card-content">
+          <div class="restaurant-meta">
+            <span class="restaurant-cuisine">Bar & Lounge</span>
+            <span class="restaurant-rating">
+              <span class="star-icon">★</span> 4.5
+            </span>
+          </div>
+          <h3 class="restaurant-name">Lord of the Drinks</h3>
+          <p class="restaurant-desc">
+            Flaunting the longest island bar in all of Asia, a 200ft iconic bar, Lord of the Drinks Lower Parel is the bedazzled destination for nightlife.
+          </p>
+          <div class="card-footer">
+            <span class="restaurant-loc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              Mumbai, India
+            </span>
+            <a href="restaurant-details.html?id=lord-drinks" class="btn-view-details">
+              View Details ➔
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Peshawri / At a Glance -->
+      <article class="restaurant-card card-premium" data-cuisine="traditional" data-location="mumbai">
+        <div class="restaurant-image-wrapper img-zoom-container">
+          <img src="./peshawri.jpg" alt="Peshawri">
+          <span class="card-badge" style="background: rgba(25, 26, 30, 0.95); border-color: rgba(240, 120, 60, 0.4);">
+            <span class="indicator-dot" style="background-color: #F0783C; box-shadow: 0 0 0 0 rgba(240, 120, 60, 0.7);"></span> Few Tables Left
+          </span>
+        </div>
+        <div class="card-content">
+          <div class="restaurant-meta">
+            <span class="restaurant-cuisine">Fine Dining</span>
+            <span class="restaurant-rating">
+              <span class="star-icon">★</span> 4.8
+            </span>
+          </div>
+          <h3 class="restaurant-name">Peshawri (At a Glance)</h3>
+          <p class="restaurant-desc">
+            The romance of the rugged North West Frontier of India comes alive at this authentic, award-winning restaurant, making it a landmark dining destination.
+          </p>
+          <div class="card-footer">
+            <span class="restaurant-loc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              Mumbai, India
+            </span>
+            <a href="restaurant-details.html?id=peshawri" class="btn-view-details">
+              View Details ➔
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state-msg">
+        <h3>No Culinary Destinations Found</h3>
+        <p>Try adjusting your keywords or selecting a different filter.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/navbar.js"></script>
+  <script>
+    // Search and Filter logic
+    const searchInput = document.getElementById('restaurant-search');
+    const filterPills = document.querySelectorAll('.filter-pill');
+    const cards = document.querySelectorAll('.restaurant-card');
+    const emptyState = document.getElementById('empty-state-msg');
+
+    let currentSearch = '';
+    let currentFilter = 'all';
+
+    function filterRestaurants() {
+      let visibleCount = 0;
+      cards.forEach(card => {
+        const name = card.querySelector('.restaurant-name').textContent.toLowerCase();
+        const desc = card.querySelector('.restaurant-desc').textContent.toLowerCase();
+        const cuisine = card.getAttribute('data-cuisine');
+        const location = card.getAttribute('data-location');
+        
+        const matchesSearch = name.includes(currentSearch) || desc.includes(currentSearch) || cuisine.includes(currentSearch);
+        let matchesFilter = false;
+
+        if (currentFilter === 'all') {
+          matchesFilter = true;
+        } else if (currentFilter === 'lounge') {
+          matchesFilter = (cuisine === 'lounge');
+        } else if (currentFilter === 'mediterranean') {
+          matchesFilter = (cuisine === 'mediterranean');
+        } else if (currentFilter === 'traditional') {
+          matchesFilter = (cuisine === 'traditional');
+        } else if (currentFilter === 'mumbai') {
+          matchesFilter = (location === 'mumbai');
+        }
+
+        if (matchesSearch && matchesFilter) {
+          card.style.display = 'flex';
+          // Clean transition
+          card.style.opacity = '1';
+          card.style.transform = 'scale(1)';
+          visibleCount++;
+        } else {
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.9)';
+          setTimeout(() => {
+            if (card.style.opacity === '0') {
+              card.style.display = 'none';
+            }
+          }, 300);
+        }
+      });
+
+      if (visibleCount === 0) {
+        emptyState.style.display = 'block';
+        setTimeout(() => { emptyState.style.opacity = '1'; }, 50);
+      } else {
+        emptyState.style.display = 'none';
+        emptyState.style.opacity = '0';
+      }
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      currentSearch = e.target.value.toLowerCase().trim();
+      filterRestaurants();
+    });
+
+    filterPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        filterPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentFilter = pill.getAttribute('data-filter');
+        filterRestaurants();
+      });
+    });
+  </script>
 </body>
 </html>

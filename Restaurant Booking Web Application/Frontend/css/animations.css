@@ -1,0 +1,168 @@
+/* animations.css - Custom Animations for Premium Dining Concierge */
+
+/* 1. Text Shimmer */
+.text-shimmer {
+  background: linear-gradient(
+    to right,
+    #FFB347 0%,
+    #F0783C 25%,
+    #FFF 50%,
+    #F0783C 75%,
+    #FFB347 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shine 4s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* 2. Fade Slide Up */
+.animate-fade-slide {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeSlideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 3. Stagger Delay Helpers */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+/* 4. Ambient Slow-Pulsing Glow */
+.card-glow-pulse {
+  position: relative;
+}
+
+.card-glow-pulse::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 18px; /* matching border-radius of card + border weight */
+  background: linear-gradient(135deg, #FFB347, #F0783C);
+  z-index: -1;
+  opacity: 0.3;
+  filter: blur(8px);
+  animation: glowPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes glowPulse {
+  0% {
+    opacity: 0.2;
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 0.5;
+    filter: blur(12px);
+  }
+}
+
+/* 5. Liquid Button Hover Effect */
+.btn-liquid {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-liquid::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+  z-index: -1;
+}
+
+.btn-liquid:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* 6. Pulsing Green Beacon */
+.indicator-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #4ECCA3;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(78, 204, 163, 0.7);
+  animation: pulseBeacon 1.8s infinite;
+  vertical-align: middle;
+}
+
+@keyframes pulseBeacon {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(78, 204, 163, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(78, 204, 163, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(78, 204, 163, 0);
+  }
+}
+
+/* 7. Skeleton Loading Shimmer */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.1) 37%,
+    rgba(255, 255, 255, 0.05) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.4s ease infinite;
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 8. Image Zoom Container */
+.img-zoom-container {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.img-zoom-container img {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.img-zoom-container:hover img {
+  transform: scale(1.08);
+}

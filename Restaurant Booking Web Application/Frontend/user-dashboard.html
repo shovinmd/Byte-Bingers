@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loyalty Hub & Dashboard | Byte-Bingers Culinary Concierge</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .dashboard-container {
+      padding: 8rem 4rem 4rem 4rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 2.5fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    @media (max-width: 992px) {
+      .dashboard-container {
+        grid-template-columns: 1fr;
+        padding: 6rem 2rem 2rem 2rem;
+      }
+    }
+
+    /* Left Column: Profile Card & Rewards Ring */
+    .profile-card {
+      padding: 2.5rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .profile-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-amber-start) 0%, var(--accent-amber-end) 100%);
+      color: #000;
+      font-size: 2.2rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+      border: 3px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .member-tier-badge {
+      display: inline-block;
+      background: rgba(255, 179, 71, 0.1);
+      border: 1px solid var(--accent-amber-start);
+      color: var(--accent-amber-start);
+      padding: 0.4rem 1.2rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .rewards-ring-container {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      margin: 1rem 0;
+    }
+
+    .rewards-ring-svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .rewards-ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.03);
+      stroke-width: 12;
+    }
+
+    .rewards-ring-fill {
+      fill: none;
+      stroke: url(#amber-gradient);
+      stroke-width: 12;
+      stroke-dasharray: 440;
+      stroke-dashoffset: 440;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rewards-ring-text-block {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .rewards-ring-num {
+      font-size: 2.2rem;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      color: var(--accent-amber-start);
+      line-height: 1;
+    }
+
+    .rewards-ring-lbl {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    .rewards-text-summary {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-top: 1rem;
+    }
+
+    /* Right Column: Bookings list */
+    .dashboard-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    .dashboard-section-title {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .dashboard-section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background: var(--accent-amber-start);
+    }
+
+    /* Active Reservation Card */
+    .active-booking-card {
+      padding: 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+      background: linear-gradient(135deg, rgba(25, 26, 30, 0.8), rgba(15, 16, 20, 0.95));
+      border: 1px solid var(--border-glass);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .active-booking-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 2rem;
+      }
+    }
+
+    .active-booking-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--accent-amber-start), var(--accent-amber-end));
+    }
+
+    .booking-details-block h3 {
+      font-size: 1.8rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .booking-info-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+
+    .booking-info-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+    }
+
+    .booking-info-item svg {
+      color: var(--accent-amber-start);
+    }
+
+    .countdown-widget {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 1.5rem;
+      min-width: 250px;
+    }
+
+    @media (max-width: 768px) {
+      .countdown-widget {
+        width: 100%;
+      }
+    }
+
+    .countdown-time-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .countdown-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      padding: 8px 12px;
+      min-width: 50px;
+    }
+
+    .countdown-val {
+      font-size: 1.6rem;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      color: var(--accent-amber-start);
+      line-height: 1;
+    }
+
+    .countdown-unit {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    .btn-booking-action {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .btn-booking-action:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      color: var(--text-primary);
+    }
+
+    .btn-booking-action.danger:hover {
+      border-color: rgba(240, 120, 60, 0.4);
+      background: rgba(240, 120, 60, 0.05);
+      color: #FFB347;
+    }
+
+    /* Past Reservations List */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .history-item {
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .history-item:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    @media (max-width: 576px) {
+      .history-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.5rem;
+      }
+    }
+
+    .history-info h4 {
+      font-size: 1.25rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .history-meta {
+      display: flex;
+      gap: 1.2rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .status-badge.completed {
+      background: rgba(78, 204, 163, 0.1);
+      color: var(--accent-teal);
+    }
+
+    .status-badge.cancelled {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+    }
+
+    /* Empty state */
+    .empty-booking-card {
+      text-align: center;
+      padding: 3rem;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.01);
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Premium Reusable Navbar Container -->
+  <div id="premium-navbar-container"></div>
+
+  <div class="dashboard-container">
+    
+    <!-- Left Column: Profile Hub -->
+    <aside class="card-premium profile-card animate-fade-slide stagger-1">
+      <div class="profile-avatar" id="profile-initials">U</div>
+      <h2 style="font-family: var(--font-serif); font-size:1.6rem;" id="profile-name">User Account</h2>
+      <span class="member-tier-badge">Gold Tier Member</span>
+
+      <!-- Rewards Progress Ring -->
+      <div class="rewards-ring-container">
+        <svg class="rewards-ring-svg">
+          <defs>
+            <linearGradient id="amber-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFB347"/>
+              <stop offset="100%" stop-color="#F0783C"/>
+            </linearGradient>
+          </defs>
+          <circle class="rewards-ring-bg" cx="80" cy="80" r="70"></circle>
+          <circle class="rewards-ring-fill" id="rewards-circle" cx="80" cy="80" r="70"></circle>
+        </svg>
+        <div class="rewards-ring-text-block">
+          <div class="rewards-ring-num" id="rewards-count">7/10</div>
+          <div class="rewards-ring-lbl">Reservations</div>
+        </div>
+      </div>
+
+      <p class="rewards-text-summary">
+        You are only <strong style="color:#FFF;">3 reservations</strong> away from achieving VIP status and unlocking a complimentary crystal decanter cocktail experience.
+      </p>
+    </aside>
+
+    <!-- Right Column: Activities -->
+    <main class="dashboard-main animate-fade-slide stagger-2">
+      
+      <!-- Section: Active Reservation -->
+      <section>
+        <h3 class="dashboard-section-title">Current Booking</h3>
+        
+        <!-- Booking Card -->
+        <div class="card-premium active-booking-card" id="active-booking-block">
+          <div class="booking-details-block">
+            <span class="member-tier-badge" style="border-color:var(--accent-teal); color:var(--accent-teal); background:rgba(78,204,163,0.05)">Confirmed Seating</span>
+            <h3 id="booking-rest-title">Aer Bar & Lounge</h3>
+            
+            <div class="booking-info-row">
+              <div class="booking-info-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span id="booking-date">July 8, 2026</span>
+              </div>
+              <div class="booking-info-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span id="booking-time">07:00 PM</span>
+              </div>
+              <div class="booking-info-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                </svg>
+                <span id="booking-guests">4 Diners</span>
+              </div>
+            </div>
+            
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;" id="booking-table-info">
+              Assigned Table: <strong>Table T-2 (Main Floor)</strong> | Code: <strong style="color:var(--text-primary);" id="booking-code">CONCIERGE-A20D15</strong>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+              <button class="btn-booking-action" onclick="alert('Rescheduling requests require talking to our VIP host desk. Call +91 22 4589 1200.');">Reschedule</button>
+              <button class="btn-booking-action danger" id="cancel-booking-btn">Release Booking</button>
+            </div>
+          </div>
+
+          <!-- Countdown Clock -->
+          <div class="countdown-widget">
+            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); display:block; margin-bottom:5px;">Countdown to dinner</span>
+            <div class="countdown-time-row">
+              <div class="countdown-box">
+                <div class="countdown-val" id="timer-hours">27</div>
+                <div class="countdown-unit">Hrs</div>
+              </div>
+              <div class="countdown-box">
+                <div class="countdown-val" id="timer-mins">45</div>
+                <div class="countdown-unit">Mins</div>
+              </div>
+              <div class="countdown-box">
+                <div class="countdown-val" id="timer-secs">12</div>
+                <div class="countdown-unit">Secs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state placeholder -->
+        <div class="empty-booking-card" id="empty-booking-msg">
+          <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1rem;">No current reservations booked at this desk.</p>
+          <a href="booking-wizard.html" class="btn-gradient btn-liquid">Book a Luxury Table</a>
+        </div>
+      </section>
+
+      <!-- Section: Past Reservations -->
+      <section>
+        <h3 class="dashboard-section-title">Dining Ledger</h3>
+        <div class="history-list" id="past-bookings-list">
+          
+          <!-- History Item 1 -->
+          <div class="card-premium history-item">
+            <div class="history-info">
+              <h4>Mabruk</h4>
+              <div class="history-meta">
+                <span>June 20, 2026</span>
+                <span>2 Guests</span>
+                <span>Table T-1 (Window)</span>
+              </div>
+            </div>
+            <span class="status-badge completed">Fulfilled</span>
+          </div>
+
+          <!-- History Item 2 -->
+          <div class="card-premium history-item">
+            <div class="history-info">
+              <h4>Lord of the Drinks</h4>
+              <div class="history-meta">
+                <span>May 12, 2026</span>
+                <span>6 Guests</span>
+                <span>Table T-4 (VIP Lounge)</span>
+              </div>
+            </div>
+            <span class="status-badge completed">Fulfilled</span>
+          </div>
+
+          <!-- History Item 3 -->
+          <div class="card-premium history-item">
+            <div class="history-info">
+              <h4>Aer Bar & Lounge</h4>
+              <div class="history-meta">
+                <span>April 04, 2026</span>
+                <span>4 Guests</span>
+                <span>Table T-2 (Main Floor)</span>
+              </div>
+            </div>
+            <span class="status-badge cancelled">Released</span>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="js/navbar.js"></script>
+  <script>
+    // Personalize dashboard on load
+    const storedName = localStorage.getItem("userName") || "Sarah Jenkins";
+    document.getElementById("profile-name").textContent = storedName;
+    document.getElementById("profile-initials").textContent = storedName.charAt(0).toUpperCase();
+
+    // Set up reward progress circle fill
+    const totalBookingsCount = 7;
+    const maxTarget = 10;
+    const progressPct = totalBookingsCount / maxTarget;
+    const circleStrokeOffset = 440 - (440 * progressPct); // SVG circle path length is ~440 (2 * pi * r => 2 * 3.1415 * 70 = 439.8)
+    
+    // Animate on load
+    setTimeout(() => {
+      document.getElementById("rewards-circle").style.strokeDashoffset = circleStrokeOffset;
+    }, 300);
+
+    // Retrieve active booking from wizard submission or populate a default
+    let activeBooking = null;
+    const storedBooking = localStorage.getItem("activeBooking");
+    
+    if (storedBooking) {
+      activeBooking = JSON.parse(storedBooking);
+    } else {
+      // Mock booking for tomorrow evening
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const optDateStr = tomorrow.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      activeBooking = {
+        restaurant: 'Aer Bar & Lounge',
+        date: optDateStr,
+        time: '07:00 PM',
+        table: 'Table T-2 (Main Floor)',
+        guests: '4',
+        code: 'CONCIERGE-X80E1C'
+      };
+      localStorage.setItem("activeBooking", JSON.stringify(activeBooking));
+    }
+
+    // Binding booking details
+    const activeBlock = document.getElementById("active-booking-block");
+    const emptyBlock = document.getElementById("empty-booking-msg");
+
+    function renderActiveBooking() {
+      if (!activeBooking) {
+        activeBlock.style.display = "none";
+        emptyBlock.style.display = "block";
+        return;
+      }
+
+      activeBlock.style.display = "flex";
+      emptyBlock.style.display = "none";
+
+      document.getElementById("booking-rest-title").textContent = activeBooking.restaurant;
+      document.getElementById("booking-date").textContent = activeBooking.date;
+      document.getElementById("booking-time").textContent = activeBooking.time;
+      document.getElementById("booking-guests").textContent = `${activeBooking.guests} Diner${activeBooking.guests > 1 ? 's' : ''}`;
+      document.getElementById("booking-table-info").innerHTML = `Assigned Space: <strong>${activeBooking.table}</strong> | Code: <strong style="color:var(--text-primary);">${activeBooking.code}</strong>`;
+    }
+
+    // Countdown Clock Ticker
+    let countdownInterval = null;
+
+    function startCountdown() {
+      if (!activeBooking) return;
+
+      const hoursVal = document.getElementById("timer-hours");
+      const minsVal = document.getElementById("timer-mins");
+      const secsVal = document.getElementById("timer-secs");
+
+      // Parse booking date and time. Let's say: "July 8, 2026" & "07:00 PM"
+      const dateParts = activeBooking.date.replace(',', '').split(' '); // e.g. ["July", "8", "2026"]
+      const timeParts = activeBooking.time.split(' '); // e.g. ["07:00", "PM"]
+      
+      const monthNames = {
+        'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
+        'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
+      };
+      const monthIdx = monthNames[dateParts[0]] || 6;
+      const day = parseInt(dateParts[1]);
+      const year = parseInt(dateParts[2]);
+
+      let hr = parseInt(timeParts[0].split(':')[0]);
+      const min = parseInt(timeParts[0].split(':')[1]);
+      const isPm = timeParts[1] === 'PM';
+      if (isPm && hr < 12) hr += 12;
+      if (!isPm && hr === 12) hr = 0;
+
+      const targetDate = new Date(year, monthIdx, day, hr, min, 0);
+
+      function updateClock() {
+        const now = new Date();
+        const diff = targetDate.getTime() - now.getTime();
+
+        if (diff <= 0) {
+          hoursVal.textContent = "00";
+          minsVal.textContent = "00";
+          secsVal.textContent = "00";
+          clearInterval(countdownInterval);
+          return;
+        }
+
+        const totalSecs = Math.floor(diff / 1000);
+        const hours = Math.floor(totalSecs / 3600);
+        const mins = Math.floor((totalSecs % 3600) / 60);
+        const secs = totalSecs % 60;
+
+        hoursVal.textContent = hours.toString().padStart(2, '0');
+        minsVal.textContent = mins.toString().padStart(2, '0');
+        secsVal.textContent = secs.toString().padStart(2, '0');
+      }
+
+      // Run immediately
+      updateClock();
+      countdownInterval = setInterval(updateClock, 1000);
+    }
+
+    // Cancel Active Reservation
+    document.getElementById("cancel-booking-btn").addEventListener("click", () => {
+      const confirmRelease = confirm("Are you sure you want to release this reservation? Your Gold Tier rating will not be impacted, but seats are limited.");
+      if (confirmRelease) {
+        clearInterval(countdownInterval);
+        
+        // Add to historical record as Released
+        const listEl = document.getElementById("past-bookings-list");
+        const newItem = document.createElement("div");
+        newItem.className = "card-premium history-item animate-fade-slide";
+        newItem.innerHTML = `
+          <div class="history-info">
+            <h4>${activeBooking.restaurant}</h4>
+            <div class="history-meta">
+              <span>${activeBooking.date}</span>
+              <span>${activeBooking.guests} Guests</span>
+              <span>${activeBooking.table}</span>
+            </div>
+          </div>
+          <span class="status-badge cancelled">Released</span>
+        `;
+        listEl.insertBefore(newItem, listEl.firstChild);
+
+        // Delete from local storage
+        localStorage.removeItem("activeBooking");
+        activeBooking = null;
+        renderActiveBooking();
+        
+        // Update reward circle progress back down slightly as punishment
+        document.getElementById("rewards-count").textContent = "6/10";
+        document.getElementById("rewards-circle").style.strokeDashoffset = 440 - (440 * (6/10));
+      }
+    });
+
+    // Run dashboard
+    renderActiveBooking();
+    startCountdown();
+  </script>
+</body>
+</html>

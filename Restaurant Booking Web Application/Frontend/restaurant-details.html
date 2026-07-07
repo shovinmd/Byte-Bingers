@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Details | Byte-Bingers Culinary Concierge</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .details-container {
+      padding: 8rem 4rem 4rem 4rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    @media (max-width: 992px) {
+      .details-container {
+        grid-template-columns: 1fr;
+        padding: 6rem 2rem 2rem 2rem;
+      }
+    }
+
+    /* Left Column Details */
+    .gallery-wrapper {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .gallery-main {
+      width: 100%;
+      height: 450px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-glass);
+    }
+
+    .gallery-main img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.8s ease;
+    }
+
+    .restaurant-header-block {
+      margin-bottom: 2rem;
+    }
+
+    .cuisine-tag-detail {
+      color: var(--accent-amber-start);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 2px;
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .restaurant-title-detail {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      line-height: 1.1;
+    }
+
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-item svg {
+      color: var(--accent-amber-start);
+    }
+
+    .desc-block {
+      margin-bottom: 2.5rem;
+    }
+
+    .desc-block h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .desc-text {
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    /* Amenities Grid */
+    .amenities-block {
+      margin-bottom: 2.5rem;
+    }
+
+    .amenities-block h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .amenities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .amenity-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.8rem 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .amenity-item svg {
+      color: var(--accent-teal);
+    }
+
+    /* Hours Block */
+    .hours-block {
+      margin-bottom: 2rem;
+    }
+
+    .hours-block h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hours-list {
+      list-style: none;
+    }
+
+    .hours-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+      font-size: 0.95rem;
+    }
+
+    .hours-row.current-day {
+      color: var(--accent-amber-start);
+      font-weight: 600;
+    }
+
+    /* Mock Map component */
+    .map-block {
+      margin-bottom: 2rem;
+    }
+
+    .map-block h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .mock-map {
+      height: 250px;
+      background: linear-gradient(rgba(11, 12, 16, 0.85), rgba(11, 12, 16, 0.85)), 
+                  url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/72.8777,19.0760,12,0/600x250?access_token=mock') center center;
+      border-radius: 12px;
+      border: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .map-marker {
+      background: var(--accent-amber-start);
+      border: 3px solid #fff;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      box-shadow: 0 0 15px var(--accent-amber-start);
+      animation: pulseBeacon 2s infinite;
+      margin-bottom: 10px;
+    }
+
+    /* Right Column Reviews & Actions */
+    .action-panel {
+      position: sticky;
+      top: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .booking-callout {
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .reviews-card {
+      padding: 2rem;
+    }
+
+    .reviews-card h3 {
+      font-size: 1.6rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 0.8rem;
+    }
+
+    /* Star Statistics */
+    .rating-summary-wrapper {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .avg-rating-box {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-glass);
+      min-width: 100px;
+    }
+
+    .avg-rating-val {
+      font-size: 2.8rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--accent-amber-start);
+      font-family: var(--font-serif);
+    }
+
+    .avg-rating-stars {
+      color: var(--accent-amber-start);
+      margin-top: 5px;
+      font-size: 0.9rem;
+    }
+
+    .rating-bars {
+      flex-grow: 1;
+    }
+
+    .rating-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+    }
+
+    .rating-bar-lbl {
+      min-width: 45px;
+      color: var(--text-secondary);
+    }
+
+    .rating-bar-track {
+      flex-grow: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .rating-bar-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--accent-amber-start), var(--accent-amber-end));
+      border-radius: 3px;
+      width: 0%;
+      transition: width 1s ease-out;
+    }
+
+    .rating-bar-pct {
+      min-width: 35px;
+      text-align: right;
+      color: var(--text-secondary);
+    }
+
+    /* Reviews List */
+    .reviews-list-wrapper {
+      max-height: 350px;
+      overflow-y: auto;
+      margin-bottom: 2rem;
+      padding-right: 5px;
+    }
+
+    .review-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .review-item:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .review-item-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .reviewer-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .review-stars {
+      color: var(--accent-amber-start);
+      font-size: 0.85rem;
+    }
+
+    .review-date {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+
+    .review-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Write Review Form */
+    .write-review-form {
+      border-top: 1px solid var(--border-glass);
+      padding-top: 1.5rem;
+    }
+
+    .write-review-form h4 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .star-select-wrapper {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .star-select-btn {
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      color: rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.2s, color 0.2s;
+    }
+
+    .star-select-btn:hover {
+      transform: scale(1.2);
+    }
+
+    .star-select-btn.selected {
+      color: var(--accent-amber-start);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Premium Reusable Navbar Container -->
+  <div id="premium-navbar-container"></div>
+
+  <div class="details-container">
+    
+    <!-- Left Column: Details -->
+    <main class="animate-fade-slide stagger-1">
+      <div class="gallery-wrapper">
+        <div class="gallery-main img-zoom-container">
+          <img id="detail-image" src="" alt="Restaurant Showcase">
+        </div>
+      </div>
+
+      <div class="restaurant-header-block">
+        <span class="cuisine-tag-detail" id="detail-cuisine">Lounge & Rooftop</span>
+        <h1 class="restaurant-title-detail" id="detail-name">Loading Restaurant...</h1>
+        
+        <div class="meta-bar">
+          <div class="meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span id="detail-location">Mumbai, India</span>
+          </div>
+          <div class="meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span id="detail-rating-text">4.9 (120 reviews)</span>
+          </div>
+          <div class="meta-item">
+            <span class="indicator-dot"></span>
+            <span id="detail-capacity-status">Tables Available Today</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="desc-block">
+        <h3>Our Story</h3>
+        <p class="desc-text" id="detail-description">
+          Loading descriptive notes...
+        </p>
+      </div>
+
+      <div class="amenities-block">
+        <h3>Curated Details</h3>
+        <div class="amenities-grid">
+          <div class="amenity-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Valet Parking Available
+          </div>
+          <div class="amenity-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Dress Code: Smart Casual
+          </div>
+          <div class="amenity-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Michelin Selections
+          </div>
+          <div class="amenity-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Outdoor Dining Available
+          </div>
+        </div>
+      </div>
+
+      <div class="hours-block">
+        <h3>Operating Hours</h3>
+        <div class="hours-list">
+          <div class="hours-row" id="hours-Mon"><span>Monday - Thursday</span><span>05:30 PM - 01:30 AM</span></div>
+          <div class="hours-row" id="hours-Fri"><span>Friday - Saturday</span><span>05:30 PM - 03:00 AM</span></div>
+          <div class="hours-row" id="hours-Sun"><span>Sunday</span><span>12:00 PM - 12:00 AM</span></div>
+        </div>
+      </div>
+
+      <div class="map-block">
+        <h3>Location</h3>
+        <div class="mock-map">
+          <div class="map-marker"></div>
+          <span style="font-weight: 600; color: #FFF; text-shadow: 0 2px 5px #000;" id="detail-map-label">Aer Bar & Lounge GPS Pin</span>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);" id="detail-address-label">Worli, Mumbai</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Column: Booking Promo & Live Reviews -->
+    <aside class="action-panel animate-fade-slide stagger-2">
+      
+      <!-- Booking CTA -->
+      <div class="card-premium booking-callout card-glow-pulse">
+        <h3 style="font-size: 1.4rem; margin-bottom: 0.8rem; font-family: var(--font-serif);">Indulge Tonight</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Secure your custom table experience using our elite booking wizard.</p>
+        <a id="cta-book-btn" href="booking-wizard.html" class="btn-gradient btn-liquid" style="width: 100%;">
+          Proceed to Table Selection
+        </a>
+      </div>
+
+      <!-- Live Reviews Feed -->
+      <div class="card-premium reviews-card">
+        <h3>Guest Experience</h3>
+
+        <!-- Rating stats -->
+        <div class="rating-summary-wrapper">
+          <div class="avg-rating-box">
+            <div class="avg-rating-val" id="summary-avg">4.9</div>
+            <div class="avg-rating-stars">★★★★★</div>
+          </div>
+          <div class="rating-bars">
+            <div class="rating-bar-row">
+              <span class="rating-bar-lbl">5 Star</span>
+              <div class="rating-bar-track"><div class="rating-bar-fill" id="bar-5" style="width: 80%;"></div></div>
+              <span class="rating-bar-pct" id="pct-5">80%</span>
+            </div>
+            <div class="rating-bar-row">
+              <span class="rating-bar-lbl">4 Star</span>
+              <div class="rating-bar-track"><div class="rating-bar-fill" id="bar-4" style="width: 15%;"></div></div>
+              <span class="rating-bar-pct" id="pct-4">15%</span>
+            </div>
+            <div class="rating-bar-row">
+              <span class="rating-bar-lbl">3 Star</span>
+              <div class="rating-bar-track"><div class="rating-bar-fill" id="bar-3" style="width: 5%;"></div></div>
+              <span class="rating-bar-pct" id="pct-3">5%</span>
+            </div>
+            <div class="rating-bar-row">
+              <span class="rating-bar-lbl">2 Star</span>
+              <div class="rating-bar-track"><div class="rating-bar-fill" id="bar-2" style="width: 0%;"></div></div>
+              <span class="rating-bar-pct" id="pct-2">0%</span>
+            </div>
+            <div class="rating-bar-row">
+              <span class="rating-bar-lbl">1 Star</span>
+              <div class="rating-bar-track"><div class="rating-bar-fill" id="bar-1" style="width: 0%;"></div></div>
+              <span class="rating-bar-pct" id="pct-1">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scrollable reviews list -->
+        <div class="reviews-list-wrapper" id="reviews-list">
+          <!-- Dynamic reviews injected here -->
+        </div>
+
+        <!-- Add Review form -->
+        <div class="write-review-form">
+          <h4>Share Your Experience</h4>
+          <form id="add-review-form">
+            <div class="form-group">
+              <label>Your Rating</label>
+              <div class="star-select-wrapper" id="star-selector">
+                <button type="button" class="star-select-btn" data-value="1">★</button>
+                <button type="button" class="star-select-btn" data-value="2">★</button>
+                <button type="button" class="star-select-btn" data-value="3">★</button>
+                <button type="button" class="star-select-btn" data-value="4">★</button>
+                <button type="button" class="star-select-btn selected" data-value="5">★</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reviewer-name-input">Signature Name</label>
+              <input type="text" id="reviewer-name-input" class="input-premium" placeholder="e.g. Countess Victoria" required>
+            </div>
+
+            <div class="form-group">
+              <label for="review-text-input">Review Details</label>
+              <textarea id="review-text-input" class="input-premium" rows="3" placeholder="Describe the ambiance, service, and standout dish..." required style="resize: none;"></textarea>
+            </div>
+
+            <button type="submit" class="btn-gradient btn-liquid" style="width: 100%;">Submit Feedback</button>
+          </form>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+
+  <script src="js/navbar.js"></script>
+  <script>
+    // Data registry for mock restaurants
+    const RESTAURANTS = {
+      'aer-bar': {
+        name: 'Aer Bar & Lounge',
+        cuisine: 'Lounge & Rooftop',
+        location: 'Mumbai, India',
+        rating: 4.9,
+        img: 'https://www.theworlds50best.com/discovery/filestore/jpg/Aer%20Bar%20_%20Lounge-Mumbai-India-1.jpg',
+        description: 'For the most stylish open-air drinking experience in Mumbai, there’s no better option than Aer Bar & Lounge, set atop the Four Seasons Hotel on the 34th floor. Experience panoramic views of the city skyline and the Arabian Sea while sipping culinary grade cocktails.',
+        address: 'Four Seasons Hotel, Worli, Mumbai',
+        capacity: 'Live Seating Available',
+        reviews: [
+          { name: 'Rohan Sharma', stars: 5, date: 'June 20, 2026', text: 'The view is unmatched. Cocktails are unique and the DJ playlist set the perfect high-class vibe.' },
+          { name: 'Ananya Goel', stars: 5, date: 'July 2, 2026', text: 'Impeccable valet and table concierge services. Truly a Michelin-star tier open rooftop lounge experience!' },
+          { name: 'Marcus D.', stars: 4, date: 'July 5, 2026', text: 'Beautiful sunset vistas. Make sure to book in advance or you wont get window seating.' }
+        ]
+      },
+      'mabruk': {
+        name: 'Mabruk',
+        cuisine: 'Mediterranean & Lebanese',
+        location: 'Mumbai, India',
+        rating: 4.7,
+        img: './inside-view-of-lagoon.jpg',
+        description: 'This Lebanese offering sets the mood with its casual low seating on a wooden deck and a spectacular view of the lagoon area, the pillar-less clear-to-the-sky dome as well as the other premium restaurants in the hotel enclave.',
+        address: 'The Sahara Star Hotel, Vile Parle, Mumbai',
+        capacity: 'Tables Available Today',
+        reviews: [
+          { name: 'Karan Mehra', stars: 5, date: 'June 29, 2026', text: 'Felt like dining in Beirut. The cold mezze platters are spectacular and the lagoon side view is magical.' },
+          { name: 'Zoya S.', stars: 4, date: 'July 4, 2026', text: 'The clear sky dome view is incredible. Friendly staff and authentic flavors.' }
+        ]
+      },
+      'lord-drinks': {
+        name: 'Lord of the Drinks',
+        cuisine: 'Bar & Lounge',
+        location: 'Mumbai, India',
+        rating: 4.5,
+        img: './photo1jpg.jpg',
+        description: 'Flaunting the longest island bar in all of Asia, a 200ft iconic layout, Lord of the Drinks Lower Parel is the bedazzled destination for high-end cocktails, vibrant culinary offerings, and dynamic musical performances.',
+        address: 'Kamala Mills Compound, Lower Parel, Mumbai',
+        capacity: 'Live Seating Available',
+        reviews: [
+          { name: 'Abhishek K.', stars: 4, date: 'June 18, 2026', text: 'The bar size is overwhelming! Music was really energetic. Great place to network and grab upscale pub food.' },
+          { name: 'Neha Gupta', stars: 5, date: 'July 1, 2026', text: 'Loved the custom liquid elements and glow indicators on the menu. A solid weekend destination.' }
+        ]
+      },
+      'peshawri': {
+        name: 'Peshawri (At a Glance)',
+        cuisine: 'Fine Dining & North Indian',
+        location: 'Mumbai, India',
+        rating: 4.8,
+        img: './peshawri.jpg',
+        description: 'The romance of the rugged North West Frontier of India comes alive at this authentic, award-winning restaurant, making it a landmark dining destination. Rich clay tandoors bake custom flatbreads and marinated meats.',
+        address: 'ITC Maratha, Sahar Road, Andheri East, Mumbai',
+        capacity: 'Few Tables Left Today',
+        reviews: [
+          { name: 'Vikram Seth', stars: 5, date: 'June 25, 2026', text: 'Best Dal Bukhara in town. The clay-oven flavor is deeply authentic. Uncompromising premium luxury service.' },
+          { name: 'Sarah Miller', stars: 5, date: 'July 3, 2026', text: 'A completely hands-on sensory dining journey. Incredible tandoor dishes.' }
+        ]
+      }
+    };
+
+    // Parse URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const restaurantId = urlParams.get('id') || 'aer-bar';
+    const restData = RESTAURANTS[restaurantId] || RESTAURANTS['aer-bar'];
+
+    // Inject content
+    document.title = `${restData.name} | Byte-Bingers Details`;
+    document.getElementById('detail-name').textContent = restData.name;
+    document.getElementById('detail-cuisine').textContent = restData.cuisine;
+    document.getElementById('detail-location').textContent = restData.location;
+    document.getElementById('detail-description').textContent = restData.description;
+    document.getElementById('detail-image').src = restData.img;
+    document.getElementById('detail-map-label').textContent = `${restData.name} GPS Pin`;
+    document.getElementById('detail-address-label').textContent = restData.address;
+    document.getElementById('detail-capacity-status').textContent = restData.capacity;
+    document.getElementById('cta-book-btn').href = `booking-wizard.html?id=${restaurantId}`;
+
+    // Highlight current day of week in operating hours
+    const days = ['Sun', 'Mon', 'Mon', 'Mon', 'Mon', 'Fri', 'Fri']; // mapping to simple table keys
+    const currentDay = new Date().getDay();
+    const currentKey = days[currentDay];
+    const hoursRow = document.getElementById(`hours-${currentKey}`);
+    if (hoursRow) hoursRow.classList.add('current-day');
+
+    // Reviews list render
+    let reviewsList = [...restData.reviews];
+    
+    function renderReviews() {
+      const listEl = document.getElementById('reviews-list');
+      listEl.innerHTML = '';
+      
+      reviewsList.forEach(rev => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'review-item';
+        
+        let starsStr = '';
+        for (let i = 0; i < 5; i++) {
+          starsStr += i < rev.stars ? '★' : '☆';
+        }
+
+        itemEl.innerHTML = `
+          <div class="review-item-header">
+            <span class="reviewer-name">${rev.name}</span>
+            <span class="review-stars">${starsStr}</span>
+          </div>
+          <span class="review-date">${rev.date}</span>
+          <p class="review-text">${rev.text}</p>
+        `;
+        listEl.appendChild(itemEl);
+      });
+
+      updateStats();
+    }
+
+    function updateStats() {
+      const count = reviewsList.length;
+      if (count === 0) return;
+
+      const sum = reviewsList.reduce((acc, curr) => acc + curr.stars, 0);
+      const avg = (sum / count).toFixed(1);
+      document.getElementById('summary-avg').textContent = avg;
+      document.getElementById('detail-rating-text').textContent = `${avg} (${count} reviews)`;
+
+      // Recalculate stars percentage
+      const dist = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
+      reviewsList.forEach(r => { dist[r.stars]++; });
+
+      for(let i = 1; i <= 5; i++) {
+        const pct = Math.round((dist[i] / count) * 100);
+        document.getElementById(`bar-${i}`).style.width = `${pct}%`;
+        document.getElementById(`pct-${i}`).textContent = `${pct}%`;
+      }
+    }
+
+    // Review Form Star Selector logic
+    let selectedRating = 5;
+    const starSelector = document.getElementById('star-selector');
+    const starBtns = starSelector.querySelectorAll('.star-select-btn');
+
+    starBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedRating = parseInt(btn.getAttribute('data-value'));
+        starBtns.forEach(b => {
+          const val = parseInt(b.getAttribute('data-value'));
+          if (val <= selectedRating) {
+            b.classList.add('selected');
+          } else {
+            b.classList.remove('selected');
+          }
+        });
+      });
+    });
+
+    // Handle feedback submission
+    const reviewForm = document.getElementById('add-review-form');
+    reviewForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const nameInput = document.getElementById('reviewer-name-input');
+      const textInput = document.getElementById('review-text-input');
+      
+      const newReview = {
+        name: nameInput.value.trim(),
+        stars: selectedRating,
+        date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        text: textInput.value.trim()
+      };
+
+      // Add to list (at start)
+      reviewsList.unshift(newReview);
+      renderReviews();
+
+      // Reset form
+      nameInput.value = '';
+      textInput.value = '';
+      selectedRating = 5;
+      starBtns.forEach(b => b.classList.add('selected'));
+      
+      alert("Thank you! Your dining feedback has been posted live.");
+    });
+
+    // Initial render
+    renderReviews();
+  </script>
+</body>
+</html>

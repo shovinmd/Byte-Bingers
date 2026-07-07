@@ -1,73 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=admin-dashboard.html">
+  <title>Redirecting...</title>
+  <script>
+    window.location.href = "admin-dashboard.html";
+  </script>
 </head>
 <body>
-    <div class="container">
-        <h2>Admin Dashboard</h2>
-        <button onclick="logout()">Logout</button>
-        
-        <h3>Restaurants</h3>
-        <button onclick="addRestaurant()">Add New Restaurant</button>
-        <ul id="restaurantList"></ul>
-        
-        <h3>Pending Reviews</h3>
-        <ul id="reviewList"></ul>
-    </div>
-    
-    <script>
-        async function fetchRestaurants() {
-            const response = await fetch("http://localhost:5000/api/admin/restaurants");
-            const data = await response.json();
-            
-            const list = document.getElementById("restaurantList");
-            list.innerHTML = "";
-            data.forEach(restaurant => {
-                const li = document.createElement("li");
-                li.innerHTML = `${restaurant.name} <button onclick="deleteRestaurant('${restaurant._id}')">Delete</button>`;
-                list.appendChild(li);
-            });
-        }
-
-        async function fetchReviews() {
-            const response = await fetch("http://localhost:5000/api/admin/reviews");
-            const data = await response.json();
-            
-            const list = document.getElementById("reviewList");
-            list.innerHTML = "";
-            data.forEach(review => {
-                const li = document.createElement("li");
-                li.innerHTML = `${review.text} <button onclick="approveReview('${review._id}')">Approve</button> <button onclick="deleteReview('${review._id}')">Delete</button>`;
-                list.appendChild(li);
-            });
-        }
-        
-        async function deleteRestaurant(id) {
-            await fetch(`http://localhost:5000/api/admin/restaurants/${id}`, { method: "DELETE" });
-            fetchRestaurants();
-        }
-        
-        async function approveReview(id) {
-            await fetch(`http://localhost:5000/api/admin/reviews/${id}/approve`, { method: "POST" });
-            fetchReviews();
-        }
-        
-        async function deleteReview(id) {
-            await fetch(`http://localhost:5000/api/admin/reviews/${id}`, { method: "DELETE" });
-            fetchReviews();
-        }
-        
-        function logout() {
-            localStorage.removeItem("adminToken");
-            window.location.href = "admin-login.html";
-        }
-        
-        fetchRestaurants();
-        fetchReviews();
-    </script>
+  <p>Redirecting to the premium Admin Console... if not redirected, <a href="admin-dashboard.html">click here</a>.</p>
 </body>
 </html>

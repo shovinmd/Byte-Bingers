@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserve Your Experience | Byte-Bingers Wizard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .wizard-container {
+      padding: 8rem 2rem 4rem 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* Progress Steps indicator */
+    .steps-indicator {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      margin-bottom: 3.5rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .steps-indicator::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.08);
+      z-index: 1;
+      transform: translateY(-50%);
+    }
+
+    .step-node {
+      position: relative;
+      z-index: 2;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-obsidian);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all 0.4s ease;
+      font-size: 0.9rem;
+    }
+
+    .step-node.active {
+      border-color: var(--accent-amber-start);
+      color: var(--text-primary);
+      box-shadow: 0 0 15px rgba(255, 179, 71, 0.3);
+      transform: scale(1.1);
+    }
+
+    .step-node.completed {
+      background: linear-gradient(135deg, var(--accent-amber-start) 0%, var(--accent-amber-end) 100%);
+      border-color: transparent;
+      color: #000;
+    }
+
+    .step-node-lbl {
+      position: absolute;
+      bottom: -28px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .step-node.active .step-node-lbl {
+      color: var(--accent-amber-start);
+      font-weight: 600;
+    }
+
+    /* Steps Cards */
+    .wizard-card {
+      display: none;
+      padding: 3rem;
+    }
+
+    .wizard-card.active {
+      display: block;
+      animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .wizard-card h2 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .wizard-card-subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+      font-size: 1rem;
+    }
+
+    /* Step 1 Date & Time styling */
+    .datetime-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 3rem;
+    }
+
+    @media (max-width: 768px) {
+      .datetime-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    .calendar-container {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+
+    .calendar-day-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-weight: 600;
+      padding-bottom: 5px;
+    }
+
+    .calendar-day-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--text-primary);
+      padding: 0.6rem 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .calendar-day-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .calendar-day-btn.selected {
+      background: linear-gradient(135deg, var(--accent-amber-start) 0%, var(--accent-amber-end) 100%);
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 4px 10px rgba(240, 120, 60, 0.3);
+    }
+
+    .calendar-day-btn:disabled {
+      color: rgba(255, 255, 255, 0.1);
+      cursor: not-allowed;
+    }
+
+    /* Time Chips */
+    .time-chips-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .time-chips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+    }
+
+    .time-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      padding: 0.8rem 0;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .time-chip:hover:not(.disabled) {
+      border-color: var(--border-amber);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .time-chip.selected {
+      background: linear-gradient(135deg, var(--accent-amber-start) 0%, var(--accent-amber-end) 100%);
+      color: #000;
+      border-color: transparent;
+      box-shadow: 0 4px 10px rgba(240, 120, 60, 0.3);
+    }
+
+    .time-chip.selected .indicator-dot {
+      background-color: #000;
+      box-shadow: 0 0 0 0 transparent;
+    }
+
+    .time-chip.disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+      border-color: transparent;
+    }
+
+    .chip-status-lbl {
+      font-size: 0.65rem;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    .time-chip.selected .chip-status-lbl {
+      color: #000;
+    }
+
+    /* Step 2 Seat Selection styling */
+    .seating-layout {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 3rem;
+    }
+
+    @media (max-width: 768px) {
+      .seating-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    .floorplan-wrapper {
+      background: rgba(25, 26, 30, 0.4);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .floorplan-stage {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      width: 100%;
+      text-align: center;
+      padding: 0.6rem 0;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      letter-spacing: 3px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .floorplan-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .table-node {
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      aspect-ratio: 1;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .table-node:hover:not(.occupied) {
+      border-color: var(--accent-amber-start);
+      background: rgba(255, 179, 71, 0.05);
+    }
+
+    .table-node.selected {
+      border-color: var(--accent-amber-start);
+      background: rgba(255, 179, 71, 0.15);
+      box-shadow: 0 0 20px rgba(255, 179, 71, 0.25);
+      transform: scale(1.05);
+    }
+
+    .table-node.occupied {
+      opacity: 0.2;
+      cursor: not-allowed;
+      border-color: transparent;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .table-num {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .table-seats {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .table-node.selected .table-seats {
+      color: var(--text-primary);
+    }
+
+    .table-type-tag {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .table-node.selected .table-type-tag {
+      background: var(--accent-amber-start);
+      color: #000;
+    }
+
+    .legend-wrapper {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.8rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-box {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Seating Summary info */
+    .summary-card {
+      padding: 2rem;
+      background: rgba(25, 26, 30, 0.4);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+    }
+
+    .summary-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1.2rem;
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 0.6rem;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+    }
+
+    .summary-lbl {
+      color: var(--text-secondary);
+    }
+
+    .summary-val {
+      font-weight: 600;
+    }
+
+    .summary-val.highlight {
+      color: var(--accent-amber-start);
+    }
+
+    /* Navigation Buttons */
+    .wizard-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 3rem;
+      border-top: 1px solid var(--border-glass);
+      padding-top: 2rem;
+    }
+
+    /* Step 3 Form columns */
+    .form-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 576px) {
+      .form-two-col {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+
+    /* Step 4: Confirmation Ticket Styling */
+    .success-ticket-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    .virtual-ticket {
+      width: 100%;
+      max-width: 400px;
+      background: radial-gradient(circle at 0% 68%, transparent 12px, var(--bg-glass-heavy) 13px),
+                  radial-gradient(circle at 100% 68%, transparent 12px, var(--bg-glass-heavy) 13px);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      animation: cardGlowPulse 4s infinite alternate;
+    }
+
+    .ticket-header {
+      padding: 2rem;
+      text-align: center;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    .ticket-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 15px;
+      right: 15px;
+      height: 1px;
+    }
+
+    .ticket-checkmark {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(78, 204, 163, 0.1);
+      border: 2px solid var(--accent-teal);
+      color: var(--accent-teal);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.8rem;
+      margin: 0 auto 1rem auto;
+    }
+
+    .ticket-body {
+      padding: 2rem;
+    }
+
+    .ticket-footer {
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.01);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      border-top: 1px dashed rgba(255, 255, 255, 0.08);
+    }
+
+    .qr-mock {
+      width: 130px;
+      height: 130px;
+      background: #FFF;
+      padding: 8px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .qr-mock svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .ticket-id {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      letter-spacing: 1.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Premium Reusable Navbar Container -->
+  <div id="premium-navbar-container"></div>
+
+  <div class="wizard-container">
+    
+    <!-- Steps Indicator -->
+    <div class="steps-indicator">
+      <div class="step-node completed" id="node-1">1 <span class="step-node-lbl">Dining Date</span></div>
+      <div class="step-node" id="node-2">2 <span class="step-node-lbl">Table Map</span></div>
+      <div class="step-node" id="node-3">3 <span class="step-node-lbl">Details</span></div>
+      <div class="step-node" id="node-4">4 <span class="step-node-lbl">Confirmation</span></div>
+    </div>
+
+    <!-- Step 1: Date & Time selection -->
+    <div class="card-premium wizard-card active" id="wizard-step-1">
+      <h2>Select Date & Time</h2>
+      <p class="wizard-card-subtitle">Choose your desired booking details. Available hours vary by day.</p>
+      
+      <div class="datetime-layout">
+        <!-- Calendar Grid -->
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <span id="calendar-month-year">July 2026</span>
+          </div>
+          <div class="calendar-grid">
+            <div class="calendar-day-label">Mo</div>
+            <div class="calendar-day-label">Tu</div>
+            <div class="calendar-day-label">We</div>
+            <div class="calendar-day-label">Th</div>
+            <div class="calendar-day-label">Fr</div>
+            <div class="calendar-day-label">Sa</div>
+            <div class="calendar-day-label">Su</div>
+            <!-- Blank slots for padding if needed -->
+            <!-- Calendar days buttons (Mon 6 is disabled past date, showing 7 to 13) -->
+            <button class="calendar-day-btn" disabled>6</button>
+            <button class="calendar-day-btn selected" data-day="7">7</button>
+            <button class="calendar-day-btn" data-day="8">8</button>
+            <button class="calendar-day-btn" data-day="9">9</button>
+            <button class="calendar-day-btn" data-day="10">10</button>
+            <button class="calendar-day-btn" data-day="11">11</button>
+            <button class="calendar-day-btn" data-day="12">12</button>
+            <button class="calendar-day-btn" data-day="13">13</button>
+            <button class="calendar-day-btn" data-day="14">14</button>
+            <button class="calendar-day-btn" data-day="15">15</button>
+            <button class="calendar-day-btn" data-day="16">16</button>
+            <button class="calendar-day-btn" data-day="17">17</button>
+            <button class="calendar-day-btn" data-day="18">18</button>
+            <button class="calendar-day-btn" data-day="19">19</button>
+          </div>
+        </div>
+
+        <!-- Time Slots Grid -->
+        <div class="time-chips-wrapper">
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; font-family: var(--font-sans);">Available Slots</h3>
+          <div class="time-chips-grid" id="time-chips-container">
+            <!-- Chip 1 -->
+            <button class="time-chip selected" data-time="06:00 PM" data-capacity="plenty">
+              <span>06:00 PM</span>
+              <span class="indicator-dot"></span>
+              <span class="chip-status-lbl">Open</span>
+            </button>
+            <!-- Chip 2 -->
+            <button class="time-chip" data-time="07:00 PM" data-capacity="plenty">
+              <span>07:00 PM</span>
+              <span class="indicator-dot"></span>
+              <span class="chip-status-lbl">Open</span>
+            </button>
+            <!-- Chip 3 -->
+            <button class="time-chip" data-time="08:00 PM" data-capacity="few">
+              <span>08:00 PM</span>
+              <span class="indicator-dot" style="background-color:#F0783C; box-shadow:0 0 0 0 rgba(240,120,60,0.7)"></span>
+              <span class="chip-status-lbl">Few Tables</span>
+            </button>
+            <!-- Chip 4 -->
+            <button class="time-chip" data-time="09:00 PM" data-capacity="few">
+              <span>09:00 PM</span>
+              <span class="indicator-dot" style="background-color:#F0783C; box-shadow:0 0 0 0 rgba(240,120,60,0.7)"></span>
+              <span class="chip-status-lbl">Few Tables</span>
+            </button>
+            <!-- Chip 5 -->
+            <button class="time-chip disabled" disabled data-time="10:00 PM" data-capacity="full">
+              <span>10:00 PM</span>
+              <span class="indicator-dot" style="background-color:rgba(255,255,255,0.2); box-shadow:none;"></span>
+              <span class="chip-status-lbl">Full</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Seat Map selection -->
+    <div class="card-premium wizard-card" id="wizard-step-2">
+      <h2>Select Your Dining Area</h2>
+      <p class="wizard-card-subtitle">Choose your preferred table from our real-time interactive floor plan.</p>
+      
+      <div class="seating-layout">
+        <!-- Floor plan visual -->
+        <div class="floorplan-wrapper">
+          <div class="floorplan-stage">Grand Entrance & Foyer</div>
+          
+          <div class="floorplan-grid" id="tables-container">
+            <!-- Table 1 -->
+            <div class="table-node" data-table="T-1" data-capacity="2" data-type="Window Booth">
+              <span class="table-num">T-1</span>
+              <span class="table-seats">2 Seats</span>
+              <span class="table-type-tag">Window</span>
+            </div>
+            <!-- Table 2 -->
+            <div class="table-node selected" data-table="T-2" data-capacity="4" data-type="Main Hall">
+              <span class="table-num">T-2</span>
+              <span class="table-seats">4 Seats</span>
+              <span class="table-type-tag">Hall</span>
+            </div>
+            <!-- Table 3 (occupied) -->
+            <div class="table-node occupied" data-table="T-3" data-capacity="2" data-type="Main Hall">
+              <span class="table-num">T-3</span>
+              <span class="table-seats">2 Seats</span>
+              <span class="table-type-tag">Hall</span>
+            </div>
+            <!-- Table 4 -->
+            <div class="table-node" data-table="T-4" data-capacity="6" data-type="VIP Lounge">
+              <span class="table-num">T-4</span>
+              <span class="table-seats">6 Seats</span>
+              <span class="table-type-tag">VIP Lounge</span>
+            </div>
+            <!-- Table 5 -->
+            <div class="table-node" data-table="T-5" data-capacity="4" data-type="Window Booth">
+              <span class="table-num">T-5</span>
+              <span class="table-seats">4 Seats</span>
+              <span class="table-type-tag">Window</span>
+            </div>
+            <!-- Table 6 (occupied) -->
+            <div class="table-node occupied" data-table="T-6" data-capacity="4" data-type="Main Hall">
+              <span class="table-num">T-6</span>
+              <span class="table-seats">4 Seats</span>
+              <span class="table-type-tag">Hall</span>
+            </div>
+            <!-- Table 7 -->
+            <div class="table-node" data-table="T-7" data-capacity="2" data-type="Main Hall">
+              <span class="table-num">T-7</span>
+              <span class="table-seats">2 Seats</span>
+              <span class="table-type-tag">Hall</span>
+            </div>
+            <!-- Table 8 -->
+            <div class="table-node" data-table="T-8" data-capacity="8" data-type="VIP Lounge">
+              <span class="table-num">T-8</span>
+              <span class="table-seats">8 Seats</span>
+              <span class="table-type-tag">VIP Lounge</span>
+            </div>
+          </div>
+
+          <div class="legend-wrapper">
+            <div class="legend-item"><span class="legend-box" style="background: rgba(255,255,255,0.03);"></span> Available</div>
+            <div class="legend-item"><span class="legend-box" style="background: rgba(255, 179, 71, 0.15); border-color: var(--accent-amber-start);"></span> Selected</div>
+            <div class="legend-item"><span class="legend-box" style="background: rgba(255,255,255,0.01); opacity:0.2;"></span> Occupied</div>
+          </div>
+        </div>
+
+        <!-- Seating Summary card -->
+        <div class="summary-card">
+          <h3>Reservation Summary</h3>
+          <div class="summary-row">
+            <span class="summary-lbl">Establishment:</span>
+            <span class="summary-val" id="summary-rest-name">Aer Bar & Lounge</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-lbl">Dining Date:</span>
+            <span class="summary-val" id="summary-date">July 7, 2026</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-lbl">Arrival Time:</span>
+            <span class="summary-val" id="summary-time">06:00 PM</span>
+          </div>
+          <div class="summary-row" style="border-top:1px solid var(--border-glass); padding-top:10px; margin-top:10px;">
+            <span class="summary-lbl">Selected Table:</span>
+            <span class="summary-val highlight" id="summary-table">T-2</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-lbl">Table Type:</span>
+            <span class="summary-val" id="summary-table-type">Main Hall</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-lbl">Max Capacity:</span>
+            <span class="summary-val" id="summary-table-cap">4 Guests</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Diner Info & Special requests -->
+    <div class="card-premium wizard-card" id="wizard-step-3">
+      <h2>Diner Information</h2>
+      <p class="wizard-card-subtitle">Complete your signature reservation record with specific details.</p>
+      
+      <form id="wizard-booking-form" style="max-width: 650px; width: 100%;">
+        <div class="form-two-col">
+          <div class="form-group">
+            <label for="diner-name">Diner Name</label>
+            <input type="text" id="diner-name" class="input-premium" placeholder="e.g. Countess Victoria" required>
+          </div>
+          <div class="form-group">
+            <label for="diner-phone">Contact Number</label>
+            <input type="tel" id="diner-phone" class="input-premium" placeholder="+91 XXXXX XXXXX" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="diner-email">Confirmation Email</label>
+          <input type="email" id="diner-email" class="input-premium" placeholder="victoria@concierge.com" required>
+        </div>
+
+        <div class="form-two-col" style="margin-top:1.5rem;">
+          <div class="form-group">
+            <label for="dietary-restriction">Dietary Preferences</label>
+            <select id="dietary-restriction" class="input-premium select-premium">
+              <option value="none">No Specific Restrictions</option>
+              <option value="vegetarian">Vegetarian</option>
+              <option value="vegan">Vegan / Plant-Based</option>
+              <option value="gluten-free">Gluten-Free</option>
+              <option value="allergies">Food Allergies (Specify below)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="guest-count-selection">Diners Count</label>
+            <select id="guest-count-selection" class="input-premium select-premium">
+              <option value="1">1 Diner</option>
+              <option value="2">2 Diners</option>
+              <option value="3">3 Diners</option>
+              <option value="4" selected>4 Diners</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="special-requests">Special Culinary Requests</label>
+          <textarea id="special-requests" class="input-premium" rows="3" placeholder="Allergies, high chair, birthday setups, champagne requests..." style="resize:none;"></textarea>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 4: Confirmation screen with ticket -->
+    <div class="card-premium wizard-card" id="wizard-step-4">
+      <h2>Reservation Complete</h2>
+      <p class="wizard-card-subtitle">Your private dining itinerary has been confirmed. Email ticket dispatched.</p>
+      
+      <div class="success-ticket-wrapper">
+        <div class="virtual-ticket">
+          
+          <div class="ticket-header">
+            <div class="ticket-checkmark">✓</div>
+            <h3 style="font-family: var(--font-serif); font-size:1.6rem; color: #FFF;" id="ticket-rest-title">Aer Bar & Lounge</h3>
+            <span style="font-size:0.8rem; color: var(--accent-amber-start); letter-spacing:1px; text-transform:uppercase;">Confirmed Luxury Seating</span>
+          </div>
+
+          <div class="ticket-body">
+            <div class="summary-row">
+              <span class="summary-lbl">Guest of Honor:</span>
+              <span class="summary-val" id="ticket-guest-name">Victoria</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-lbl">Date:</span>
+              <span class="summary-val" id="ticket-date">July 7, 2026</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-lbl">Arrival Time:</span>
+              <span class="summary-val" id="ticket-time">06:00 PM</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-lbl">Assigned Space:</span>
+              <span class="summary-val highlight" id="ticket-table-no">Table T-2 (Main Hall)</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-lbl">Diners Count:</span>
+              <span class="summary-val" id="ticket-diners-count">4 People</span>
+            </div>
+          </div>
+
+          <div class="ticket-footer">
+            <div class="qr-mock">
+              <!-- Inline SVG for dynamic QR code presentation -->
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <rect width="100" height="100" fill="#FFF"/>
+                <path d="M10,10 h20 v20 h-20 z M15,15 h10 v10 h-10 z M70,10 h20 v20 h-20 z M75,15 h10 v10 h-10 z M10,70 h20 v20 h-20 z M15,75 h10 v10 h-10 z" fill="#000"/>
+                <path d="M40,10 h10 v10 h-10 z M55,15 h10 v5 h-10 z M40,25 h15 v5 h-15 z M45,40 h15 v10 h-15 z M70,45 h20 v5 h-20 z M80,55 h10 v10 h-10 z M10,45 h10 v15 h-10 z M25,45 h10 v5 h-10 z M55,70 h15 v10 h-15 z M40,75 h10 v15 h-10 z M70,75 h20 v15 h-20 z" fill="#000"/>
+                <circle cx="50" cy="50" r="4" fill="#F0783C"/>
+              </svg>
+            </div>
+            <div class="ticket-id" id="ticket-id-val">CONCIERGE-908A1E</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Wizard Navigation buttons -->
+    <div class="wizard-buttons">
+      <button class="btn-secondary-outline" id="prev-step-btn" style="visibility: hidden;">➔ Previous Step</button>
+      <button class="btn-gradient btn-liquid" id="next-step-btn">Next Step ➔</button>
+    </div>
+
+  </div>
+
+  <script src="js/navbar.js"></script>
+  <script>
+    // Selections state registry
+    const REST_NAMES = {
+      'aer-bar': 'Aer Bar & Lounge',
+      'mabruk': 'Mabruk',
+      'lord-drinks': 'Lord of the Drinks',
+      'peshawri': 'Peshawri (At a Glance)'
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedRestId = urlParams.get('id') || 'aer-bar';
+    const restDisplayName = REST_NAMES[selectedRestId] || 'Aer Bar & Lounge';
+
+    let currentStep = 1;
+    let selectedDate = 'July 7, 2026';
+    let selectedTime = '06:00 PM';
+    let selectedTableNum = 'T-2';
+    let selectedTableType = 'Main Hall';
+    let selectedTableCap = '4 Guests';
+
+    // UI elements binding
+    const stepNodes = [
+      document.getElementById('node-1'),
+      document.getElementById('node-2'),
+      document.getElementById('node-3'),
+      document.getElementById('node-4')
+    ];
+    const stepsCards = [
+      document.getElementById('wizard-step-1'),
+      document.getElementById('wizard-step-2'),
+      document.getElementById('wizard-step-3'),
+      document.getElementById('wizard-step-4')
+    ];
+
+    const prevBtn = document.getElementById('prev-step-btn');
+    const nextBtn = document.getElementById('next-step-btn');
+
+    // Init summary display values
+    document.getElementById('summary-rest-name').textContent = restDisplayName;
+    document.getElementById('summary-date').textContent = selectedDate;
+    document.getElementById('summary-time').textContent = selectedTime;
+    document.getElementById('summary-table').textContent = selectedTableNum;
+    document.getElementById('summary-table-type').textContent = selectedTableType;
+    document.getElementById('summary-table-cap').textContent = selectedTableCap;
+
+    // Step 1: Calendar click logic
+    const dayBtns = document.querySelectorAll('.calendar-day-btn');
+    dayBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        dayBtns.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const dayVal = btn.getAttribute('data-day');
+        selectedDate = `July ${dayVal}, 2026`;
+        document.getElementById('summary-date').textContent = selectedDate;
+      });
+    });
+
+    // Step 1: Time chip logic
+    const timeChips = document.querySelectorAll('.time-chip');
+    timeChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (chip.classList.contains('disabled')) return;
+        timeChips.forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        selectedTime = chip.getAttribute('data-time');
+        document.getElementById('summary-time').textContent = selectedTime;
+      });
+    });
+
+    // Step 2: Table Node click logic
+    const tableNodes = document.querySelectorAll('.table-node');
+    tableNodes.forEach(node => {
+      node.addEventListener('click', () => {
+        if (node.classList.contains('occupied')) return;
+        tableNodes.forEach(n => n.classList.remove('selected'));
+        node.classList.add('selected');
+
+        selectedTableNum = node.getAttribute('data-table');
+        selectedTableType = node.getAttribute('data-type');
+        selectedTableCap = `${node.getAttribute('data-capacity')} Guests`;
+
+        // Update summaries
+        document.getElementById('summary-table').textContent = selectedTableNum;
+        document.getElementById('summary-table-type').textContent = selectedTableType;
+        document.getElementById('summary-table-cap').textContent = selectedTableCap;
+        
+        // Dynamically adjust diner count drop-down to match capacity
+        const dinerSelect = document.getElementById('guest-count-selection');
+        dinerSelect.innerHTML = '';
+        const capInt = parseInt(node.getAttribute('data-capacity'));
+        for(let i = 1; i <= capInt; i++) {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.textContent = `${i} Diner${i > 1 ? 's' : ''}`;
+          if (i === capInt) opt.selected = true;
+          dinerSelect.appendChild(opt);
+        }
+      });
+    });
+
+    // Step indicators update helper
+    function updateStepIndicator() {
+      stepNodes.forEach((node, idx) => {
+        const stepNum = idx + 1;
+        if (stepNum < currentStep) {
+          node.className = 'step-node completed';
+        } else if (stepNum === currentStep) {
+          node.className = 'step-node active';
+        } else {
+          node.className = 'step-node';
+        }
+      });
+    }
+
+    // Step cards visibility toggle
+    function showCurrentStep() {
+      stepsCards.forEach((card, idx) => {
+        if (idx + 1 === currentStep) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      });
+
+      // Adjust buttons visibility
+      if (currentStep === 1) {
+        prevBtn.style.visibility = 'hidden';
+      } else if (currentStep === 4) {
+        prevBtn.style.visibility = 'hidden';
+        nextBtn.textContent = 'Back to Discovery ➔';
+      } else {
+        prevBtn.style.visibility = 'visible';
+        nextBtn.textContent = 'Next Step ➔';
+      }
+
+      updateStepIndicator();
+    }
+
+    // Next step navigation
+    nextBtn.addEventListener('click', () => {
+      if (currentStep === 3) {
+        // Submit details, check validation
+        const nameVal = document.getElementById('diner-name').value.trim();
+        const emailVal = document.getElementById('diner-email').value.trim();
+        const phoneVal = document.getElementById('diner-phone').value.trim();
+        
+        if (!nameVal || !emailVal || !phoneVal) {
+          alert("Please fill in your signature dining credentials to complete the booking.");
+          return;
+        }
+
+        // Send booking details to DB via fetch if needed
+        const guests = document.getElementById('guest-count-selection').value;
+        const restrictions = document.getElementById('dietary-restriction').value;
+
+        // Populate ticket card values
+        document.getElementById('ticket-rest-title').textContent = restDisplayName;
+        document.getElementById('ticket-guest-name').textContent = nameVal;
+        document.getElementById('ticket-date').textContent = selectedDate;
+        document.getElementById('ticket-time').textContent = selectedTime;
+        document.getElementById('ticket-table-no').textContent = `Table ${selectedTableNum} (${selectedTableType})`;
+        document.getElementById('ticket-diners-count').textContent = `${guests} Diner${guests > 1 ? 's' : ''}`;
+        
+        // Random ticket ID
+        const hash = Math.random().toString(36).substring(2, 8).toUpperCase();
+        document.getElementById('ticket-id-val').textContent = `CONCIERGE-${hash}`;
+
+        // Save active booking in localStorage for the user dashboard count down
+        const newBooking = {
+          restaurant: restDisplayName,
+          date: selectedDate,
+          time: selectedTime,
+          table: `Table ${selectedTableNum} (${selectedTableType})`,
+          guests: guests,
+          code: `CONCIERGE-${hash}`
+        };
+        localStorage.setItem("activeBooking", JSON.stringify(newBooking));
+
+        // Submit to API
+        fetch('http://localhost:5000/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: "mock-uid-100", // simulated logged in user
+            restaurantId: selectedRestId,
+            date: selectedDate,
+            time: selectedTime,
+            guests: guests,
+            email: emailVal
+          })
+        }).catch(err => console.log("Simulating dynamic backend offline. Falling back to local tickets."));
+
+        currentStep = 4;
+        showCurrentStep();
+      } else if (currentStep === 4) {
+        // Go back to main
+        window.location.href = 'index.html';
+      } else {
+        currentStep++;
+        showCurrentStep();
+      }
+    });
+
+    // Previous step navigation
+    prevBtn.addEventListener('click', () => {
+      if (currentStep > 1 && currentStep < 4) {
+        currentStep--;
+        showCurrentStep();
+      }
+    });
+
+    // Handle early load queries
+    showCurrentStep();
+  </script>
+</body>
+</html>

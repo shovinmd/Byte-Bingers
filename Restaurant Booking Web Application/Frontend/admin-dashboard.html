@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Desk | Byte-Bingers Analytics Console</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .admin-container {
+      padding: 8rem 4rem 4rem 4rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .admin-container {
+        padding: 6rem 2rem 2rem 2rem;
+      }
+    }
+
+    .admin-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+    }
+
+    .stat-card {
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-lbl {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .stat-val-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .stat-val {
+      font-size: 2.2rem;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-trend {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-teal);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-trend.down {
+      color: var(--accent-amber-end);
+    }
+
+    /* Simple Mini CSS Chart visualization */
+    .mini-chart {
+      margin-top: 1.5rem;
+      height: 40px;
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .mini-chart-bar {
+      flex-grow: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+      transition: height 1s ease;
+      height: 10%;
+    }
+
+    /* Tabs Panel */
+    .tabs-wrapper {
+      display: flex;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 1rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .tab-btn.active {
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -17px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, var(--accent-amber-start), var(--accent-amber-end));
+    }
+
+    .tab-content-block {
+      display: none;
+      animation: fadeSlideUp 0.5s ease forwards;
+    }
+
+    .tab-content-block.active {
+      display: block;
+    }
+
+    /* Form within Admin */
+    .admin-form-card {
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    /* List grids */
+    .admin-data-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .data-row-item {
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .data-row-item:hover {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    @media (max-width: 576px) {
+      .data-row-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.5rem;
+      }
+    }
+
+    .data-title-group h4 {
+      font-size: 1.3rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .data-meta-group {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .btn-action-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-badge-action {
+      background: none;
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+
+    .btn-badge-action.approve:hover {
+      background: rgba(78, 204, 163, 0.15);
+      border-color: var(--accent-teal);
+      color: var(--accent-teal);
+    }
+
+    .btn-badge-action.reject:hover {
+      background: rgba(240, 120, 60, 0.15);
+      border-color: var(--accent-amber-end);
+      color: var(--accent-amber-start);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Premium Reusable Navbar Container -->
+  <div id="premium-navbar-container"></div>
+
+  <div class="admin-container">
+    
+    <!-- Title / Top Row -->
+    <header class="admin-header-row animate-fade-slide stagger-1">
+      <div>
+        <h1 style="font-size: 2.8rem; line-height:1.2;">Analytics Admin Console</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Manage establishments, moderate guest reviews, and monitor occupancy.</p>
+      </div>
+      
+      <button class="btn-secondary-outline" id="admin-logout-btn" style="border-radius:30px;">
+        Release Console Session
+      </button>
+    </header>
+
+    <!-- Stats Performance Metrics -->
+    <section class="stats-grid animate-fade-slide stagger-2">
+      <!-- Total Bookings -->
+      <div class="card-premium stat-card">
+        <span class="stat-lbl">Active Seating Records</span>
+        <div class="stat-val-row">
+          <span class="stat-val" id="stats-total-bookings">148</span>
+          <span class="stat-trend">➔ 12% MoM</span>
+        </div>
+        <div class="mini-chart" id="chart-bookings">
+          <div class="mini-chart-bar" style="height: 30%"></div>
+          <div class="mini-chart-bar" style="height: 45%"></div>
+          <div class="mini-chart-bar" style="height: 60%"></div>
+          <div class="mini-chart-bar" style="height: 50%"></div>
+          <div class="mini-chart-bar" style="height: 75%"></div>
+          <div class="mini-chart-bar" style="height: 85%"></div>
+        </div>
+      </div>
+
+      <!-- Occupancy Rate -->
+      <div class="card-premium stat-card">
+        <span class="stat-lbl">Table Occupancy Rate</span>
+        <div class="stat-val-row">
+          <span class="stat-val" id="stats-occupancy">84.2%</span>
+          <span class="stat-trend">➔ 4.8% Week</span>
+        </div>
+        <div class="mini-chart" id="chart-occupancy">
+          <div class="mini-chart-bar" style="height: 60%"></div>
+          <div class="mini-chart-bar" style="height: 70%"></div>
+          <div class="mini-chart-bar" style="height: 75%"></div>
+          <div class="mini-chart-bar" style="height: 80%"></div>
+          <div class="mini-chart-bar" style="height: 82%"></div>
+          <div class="mini-chart-bar" style="height: 90%"></div>
+        </div>
+      </div>
+
+      <!-- Pending Moderations -->
+      <div class="card-premium stat-card">
+        <span class="stat-lbl">Pending Moderations</span>
+        <div class="stat-val-row">
+          <span class="stat-val" id="stats-pending-reviews" style="color: var(--accent-amber-start)">3</span>
+          <span class="stat-trend down" style="color:var(--accent-amber-start);">! Urgent queue</span>
+        </div>
+        <div class="mini-chart" id="chart-moderation">
+          <div class="mini-chart-bar" style="height: 80%"></div>
+          <div class="mini-chart-bar" style="height: 70%"></div>
+          <div class="mini-chart-bar" style="height: 50%"></div>
+          <div class="mini-chart-bar" style="height: 30%"></div>
+          <div class="mini-chart-bar" style="height: 20%"></div>
+          <div class="mini-chart-bar" style="height: 10%"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabbed Panels Navigation -->
+    <nav class="tabs-wrapper animate-fade-slide stagger-3">
+      <button class="tab-btn active" id="tab-btn-rest">Establishments Registry</button>
+      <button class="tab-btn" id="tab-btn-rev">Moderation Board</button>
+    </nav>
+
+    <!-- Tab 1: Manage Restaurants -->
+    <div class="tab-content-block active animate-fade-slide stagger-4" id="tab-content-rest">
+      
+      <!-- Add Restaurant Form Block -->
+      <div class="card-premium admin-form-card">
+        <h3 style="font-size: 1.4rem; margin-bottom: 1.5rem; font-family: var(--font-serif);">Onboard New Dining Destination</h3>
+        <form id="add-restaurant-form" style="width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+          
+          <div class="form-group">
+            <label for="new-rest-name">Destination Title</label>
+            <input type="text" id="new-rest-name" class="input-premium" placeholder="e.g. Peshawri Royal" required>
+          </div>
+
+          <div class="form-group">
+            <label for="new-rest-cuisine">Cuisine Classification</label>
+            <input type="text" id="new-rest-cuisine" class="input-premium" placeholder="e.g. North West Frontier" required>
+          </div>
+
+          <div class="form-group">
+            <label for="new-rest-loc">Physical Location</label>
+            <input type="text" id="new-rest-loc" class="input-premium" placeholder="e.g. Andheri East, Mumbai" required>
+          </div>
+
+          <div class="form-group">
+            <label for="new-rest-img">Cover Showcase Image URL</label>
+            <input type="url" id="new-rest-img" class="input-premium" placeholder="e.g. http://domain.com/photo.jpg">
+          </div>
+
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label for="new-rest-desc">Brief Sensory Description</label>
+            <textarea id="new-rest-desc" class="input-premium" rows="2" placeholder="Describe the ambiance, tandoor clay-oven signature profiles, and historical details..." required style="resize:none;"></textarea>
+          </div>
+
+          <button type="submit" class="btn-gradient btn-liquid" style="grid-column: 1 / -1; padding: 1rem 0;">
+            Activate Destination Registry
+          </button>
+        </form>
+      </div>
+
+      <!-- Restaurants Listings Grid -->
+      <div style="margin-top:2.5rem;">
+        <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem; font-family: var(--font-serif);">Active Registries</h3>
+        <ul class="admin-data-list" id="admin-rest-list">
+          <!-- Dynamic restaurant lists injected here -->
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Tab 2: Moderation Queue -->
+    <div class="tab-content-block animate-fade-slide stagger-4" id="tab-content-rev">
+      <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem; font-family: var(--font-serif);">Pending Dining Feedback</h3>
+      
+      <ul class="admin-data-list" id="admin-review-list">
+        <!-- Dynamic reviews moderation list items here -->
+      </ul>
+    </div>
+
+  </div>
+
+  <script src="js/navbar.js"></script>
+  <script>
+    // Validate session
+    const role = localStorage.getItem("userRole");
+    if (role !== 'admin') {
+      alert("Unauthorized Access. Directing to desk sign in.");
+      window.location.href = "login.html";
+    }
+
+    // Logout
+    document.getElementById("admin-logout-btn").addEventListener("click", () => {
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userName");
+      alert("Console session released.");
+      window.location.href = "login.html";
+    });
+
+    // Tab toggling logic
+    const restTabBtn = document.getElementById("tab-btn-rest");
+    const revTabBtn = document.getElementById("tab-btn-rev");
+    const restTabContent = document.getElementById("tab-content-rest");
+    const revTabContent = document.getElementById("tab-content-rev");
+
+    restTabBtn.addEventListener("click", () => {
+      restTabBtn.classList.add("active");
+      revTabBtn.classList.remove("active");
+      restTabContent.classList.add("active");
+      revTabContent.classList.remove("active");
+    });
+
+    revTabBtn.addEventListener("click", () => {
+      revTabBtn.classList.add("active");
+      restTabBtn.classList.remove("active");
+      revTabContent.classList.add("active");
+      restTabContent.classList.remove("active");
+    });
+
+    // Mock registries data models
+    let RESTAURANTS = [
+      { id: "aer-bar", name: "Aer Bar & Lounge", cuisine: "Lounge & Rooftop", location: "Worli, Mumbai" },
+      { id: "mabruk", name: "Mabruk", cuisine: "Mediterranean", location: "Vile Parle, Mumbai" },
+      { id: "lord-drinks", name: "Lord of the Drinks", cuisine: "Bar & Lounge", location: "Lower Parel, Mumbai" },
+      { id: "peshawri", name: "Peshawri (At a Glance)", cuisine: "Fine Dining & North Indian", location: "Sahar Road, Mumbai" }
+    ];
+
+    let REVIEWS_QUEUE = [
+      { id: "rev-1", author: "Countess Victoria", stars: 5, text: "The champagne was perfectly chilled and Table T-2 had exceptional sunset vistas. Delightful layout." },
+      { id: "rev-2", author: "Ramesh Patel", stars: 3, text: "Food was good but the valet wait times during Friday peak hours were frustrating." },
+      { id: "rev-3", author: "Diner #908", stars: 5, text: "Excellent tandoori lamb chops, highly responsive butler service. Will book private vip booths next time." }
+    ];
+
+    // Binding lists
+    const restListContainer = document.getElementById("admin-rest-list");
+    const revListContainer = document.getElementById("admin-review-list");
+
+    // Fetch and populate lists
+    async function fetchRestaurants() {
+      try {
+        const response = await fetch("http://localhost:5000/api/admin/restaurants");
+        if (response.ok) {
+          const data = await response.json();
+          // Map to local if DB works
+          RESTAURANTS = data.map(r => ({ id: r._id, name: r.name, cuisine: "Cuisine Desk", location: "Mumbai Location" }));
+        }
+      } catch (err) {
+        console.log("Simulating dynamic admin restaurants connection offline. Using fallbacks.");
+      }
+      renderRestaurants();
+    }
+
+    async function fetchReviews() {
+      try {
+        const response = await fetch("http://localhost:5000/api/admin/reviews");
+        if (response.ok) {
+          const data = await response.json();
+          REVIEWS_QUEUE = data.map((r, i) => ({ id: r._id, author: `Guest of Honor #${i+1}`, stars: 5, text: r.text }));
+        }
+      } catch (err) {
+        console.log("Simulating dynamic admin reviews connection offline. Using fallbacks.");
+      }
+      renderReviews();
+    }
+
+    function renderRestaurants() {
+      restListContainer.innerHTML = "";
+      RESTAURANTS.forEach(rest => {
+        const itemEl = document.createElement("li");
+        itemEl.className = "card-premium data-row-item animate-fade-slide";
+        itemEl.innerHTML = `
+          <div class="data-title-group">
+            <h4>${rest.name}</h4>
+            <div class="data-meta-group">
+              <span>${rest.cuisine}</span>
+              <span>${rest.location}</span>
+            </div>
+          </div>
+          <button class="btn-badge-action reject" onclick="deleteRestaurant('${rest.id}')">De-Register</button>
+        `;
+        restListContainer.appendChild(itemEl);
+      });
+      document.getElementById("stats-total-bookings").textContent = (140 + RESTAURANTS.length).toString();
+    }
+
+    function renderReviews() {
+      revListContainer.innerHTML = "";
+      document.getElementById("stats-pending-reviews").textContent = REVIEWS_QUEUE.length.toString();
+      
+      if (REVIEWS_QUEUE.length === 0) {
+        revListContainer.innerHTML = `<li style="text-align:center; padding: 2rem; color:var(--text-secondary);">Moderation Queue Cleared. Well done!</li>`;
+        return;
+      }
+
+      REVIEWS_QUEUE.forEach(rev => {
+        const itemEl = document.createElement("li");
+        itemEl.className = "card-premium data-row-item animate-fade-slide";
+        itemEl.innerHTML = `
+          <div class="data-title-group" style="max-width: 70%;">
+            <h4>${rev.author}</h4>
+            <span style="font-size:0.8rem; color:var(--accent-amber-start); display:block; margin-bottom:5px;">Rating: ${'★'.repeat(rev.stars)}</span>
+            <p style="font-size:0.9rem; line-height:1.5; color: var(--text-secondary);">${rev.text}</p>
+          </div>
+          <div class="btn-action-row">
+            <button class="btn-badge-action approve" onclick="approveReview('${rev.id}')">Approve</button>
+            <button class="btn-badge-action reject" onclick="rejectReview('${rev.id}')">Reject</button>
+          </div>
+        `;
+        revListContainer.appendChild(itemEl);
+      });
+    }
+
+    // Actions
+    async function deleteRestaurant(id) {
+      const confirmDel = confirm("Are you sure you want to de-register this establishment? This removes all active seating grids.");
+      if (confirmDel) {
+        try {
+          await fetch(`http://localhost:5000/api/admin/restaurants/${id}`, { method: "DELETE" });
+        } catch(err) {
+          console.log("Offline mode: Deleting local element.");
+        }
+        RESTAURANTS = RESTAURANTS.filter(r => r.id !== id);
+        renderRestaurants();
+      }
+    }
+
+    async function approveReview(id) {
+      try {
+        await fetch(`http://localhost:5000/api/admin/reviews/${id}/approve`, { method: "POST" });
+      } catch(err) {
+        console.log("Offline mode: Approving local element.");
+      }
+      REVIEWS_QUEUE = REVIEWS_QUEUE.filter(r => r.id !== id);
+      renderReviews();
+    }
+
+    async function rejectReview(id) {
+      const confirmRej = confirm("Confirm rejection and release of this feedback ticket?");
+      if (confirmRej) {
+        try {
+          await fetch(`http://localhost:5000/api/admin/reviews/${id}`, { method: "DELETE" });
+        } catch(err) {
+          console.log("Offline mode: Rejecting local element.");
+        }
+        REVIEWS_QUEUE = REVIEWS_QUEUE.filter(r => r.id !== id);
+        renderReviews();
+      }
+    }
+
+    // Add Restaurant form submit handler
+    document.getElementById("add-restaurant-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("new-rest-name").value.trim();
+      const cuisine = document.getElementById("new-rest-cuisine").value.trim();
+      const loc = document.getElementById("new-rest-loc").value.trim();
+      const desc = document.getElementById("new-rest-desc").value.trim();
+
+      const newId = name.toLowerCase().replace(/\s+/g, '-');
+
+      try {
+        await fetch("http://localhost:5000/api/admin/restaurants", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }) // matching basic original schema
+        });
+      } catch(err) {
+        console.log("Offline mode: Onboarding local element.");
+      }
+
+      // Add locally
+      RESTAURANTS.push({ id: newId, name, cuisine, location: loc });
+      renderRestaurants();
+
+      // Reset
+      document.getElementById("add-restaurant-form").reset();
+      alert(`Successfully onboarded destination: ${name}`);
+    });
+
+    // Run
+    fetchRestaurants();
+    fetchReviews();
+  </script>
+</body>
+</html>

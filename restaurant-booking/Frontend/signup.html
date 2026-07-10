@@ -194,6 +194,10 @@
           <p class="auth-subtitle">Create your culinary profile</p>
         </div>
 
+        <div class="alert-box-premium" id="auth-required-alert" style="display: none; background: rgba(245, 158, 11, 0.1); border: 1px solid var(--accent-amber-start); border-radius: 8px; padding: 0.8rem; margin-bottom: 1.5rem; color: var(--accent-amber-start); font-size: 0.85rem; text-align: center; animation: pulseAlert 2.5s infinite;">
+          Join our Loyalty Hub to unlock premium reservations!
+        </div>
+
         <form id="signupForm">
           <div class="input-wrapper">
             <input type="text" id="name" required autocomplete="name">
@@ -399,6 +403,13 @@
         alert("Google Sign-In Error: " + err.message);
       }
     });
+
+    // Check for reservation alert trigger
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('reason') === 'auth_required') {
+      const alertEl = document.getElementById('auth-required-alert');
+      if (alertEl) alertEl.style.display = 'block';
+    }
   </script>
 </body>
 </html>

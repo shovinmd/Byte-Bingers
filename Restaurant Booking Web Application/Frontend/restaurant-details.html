@@ -6,6 +6,8 @@
   <title>Restaurant Details | Byte-Bingers Culinary Concierge</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/animations.css">
+  <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
   <style>
     .details-container {
       padding: 8rem 4rem 4rem 4rem;
@@ -466,9 +468,11 @@
 
       <div class="map-block">
         <h3>Location</h3>
-        <div class="mock-map">
-          <div class="map-marker"></div>
-          <span style="font-weight: 600; color: #FFF; text-shadow: 0 2px 5px #000;" id="detail-map-label">Aer Bar & Lounge GPS Pin</span>
+        <div id="map-container" style="position: relative; height: 280px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-glass);">
+          <div id="map" style="position: absolute; top: 0; bottom: 0; width: 100%;"></div>
+        </div>
+        <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 4px;">
+          <span style="font-weight: 600; color: #FFF; font-size: 0.95rem;" id="detail-map-label">Aer Bar & Lounge GPS Pin</span>
           <span style="font-size: 0.8rem; color: var(--text-secondary);" id="detail-address-label">Worli, Mumbai</span>
         </div>
       </div>
@@ -577,6 +581,8 @@
         description: 'For the most stylish open-air drinking experience in Mumbai, there’s no better option than Aer Bar & Lounge, set atop the Four Seasons Hotel on the 34th floor. Experience panoramic views of the city skyline and the Arabian Sea while sipping culinary grade cocktails.',
         address: 'Four Seasons Hotel, Worli, Mumbai',
         capacity: 'Live Seating Available',
+        latitude: 18.9953,
+        longitude: 72.8208,
         reviews: [
           { name: 'Rohan Sharma', stars: 5, date: 'June 20, 2026', text: 'The view is unmatched. Cocktails are unique and the DJ playlist set the perfect high-class vibe.' },
           { name: 'Ananya Goel', stars: 5, date: 'July 2, 2026', text: 'Impeccable valet and table concierge services. Truly a Michelin-star tier open rooftop lounge experience!' },
@@ -592,6 +598,8 @@
         description: 'This Lebanese offering sets the mood with its casual low seating on a wooden deck and a spectacular view of the lagoon area, the pillar-less clear-to-the-sky dome as well as the other premium restaurants in the hotel enclave.',
         address: 'The Sahara Star Hotel, Vile Parle, Mumbai',
         capacity: 'Tables Available Today',
+        latitude: 19.0964,
+        longitude: 72.8541,
         reviews: [
           { name: 'Karan Mehra', stars: 5, date: 'June 29, 2026', text: 'Felt like dining in Beirut. The cold mezze platters are spectacular and the lagoon side view is magical.' },
           { name: 'Zoya S.', stars: 4, date: 'July 4, 2026', text: 'The clear sky dome view is incredible. Friendly staff and authentic flavors.' }
@@ -606,6 +614,8 @@
         description: 'Flaunting the longest island bar in all of Asia, a 200ft iconic layout, Lord of the Drinks Lower Parel is the bedazzled destination for high-end cocktails, vibrant culinary offerings, and dynamic musical performances.',
         address: 'Kamala Mills Compound, Lower Parel, Mumbai',
         capacity: 'Live Seating Available',
+        latitude: 18.9995,
+        longitude: 72.8294,
         reviews: [
           { name: 'Abhishek K.', stars: 4, date: 'June 18, 2026', text: 'The bar size is overwhelming! Music was really energetic. Great place to network and grab upscale pub food.' },
           { name: 'Neha Gupta', stars: 5, date: 'July 1, 2026', text: 'Loved the custom liquid elements and glow indicators on the menu. A solid weekend destination.' }
@@ -620,6 +630,8 @@
         description: 'The romance of the rugged North West Frontier of India comes alive at this authentic, award-winning restaurant, making it a landmark dining destination. Rich clay tandoors bake custom flatbreads and marinated meats.',
         address: 'ITC Maratha, Sahar Road, Andheri East, Mumbai',
         capacity: 'Few Tables Left Today',
+        latitude: 19.1026,
+        longitude: 72.8748,
         reviews: [
           { name: 'Vikram Seth', stars: 5, date: 'June 25, 2026', text: 'Best Dal Bukhara in town. The clay-oven flavor is deeply authentic. Uncompromising premium luxury service.' },
           { name: 'Sarah Miller', stars: 5, date: 'July 3, 2026', text: 'A completely hands-on sensory dining journey. Incredible tandoor dishes.' }
@@ -627,32 +639,108 @@
       }
     };
 
-    // Parse URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const restaurantId = urlParams.get('id') || 'aer-bar';
-    const restData = RESTAURANTS[restaurantId] || RESTAURANTS['aer-bar'];
+    let reviewsList = [];
 
-    // Inject content
-    document.title = `${restData.name} | Byte-Bingers Details`;
-    document.getElementById('detail-name').textContent = restData.name;
-    document.getElementById('detail-cuisine').textContent = restData.cuisine;
-    document.getElementById('detail-location').textContent = restData.location;
-    document.getElementById('detail-description').textContent = restData.description;
-    document.getElementById('detail-image').src = restData.img;
-    document.getElementById('detail-map-label').textContent = `${restData.name} GPS Pin`;
-    document.getElementById('detail-address-label').textContent = restData.address;
-    document.getElementById('detail-capacity-status').textContent = restData.capacity;
-    document.getElementById('cta-book-btn').href = `booking-wizard.html?id=${restaurantId}`;
+    // Initialize Maplibre Map using OpenFreeMap
+    function initializeMap(restData) {
+      try {
+        const map = new maplibregl.Map({
+          container: 'map',
+          style: 'https://tiles.openfreemap.org/styles/liberty',
+          center: [restData.longitude || 72.8208, restData.latitude || 18.9953],
+          zoom: 14
+        });
 
-    // Highlight current day of week in operating hours
-    const days = ['Sun', 'Mon', 'Mon', 'Mon', 'Mon', 'Fri', 'Fri']; // mapping to simple table keys
-    const currentDay = new Date().getDay();
-    const currentKey = days[currentDay];
-    const hoursRow = document.getElementById(`hours-${currentKey}`);
-    if (hoursRow) hoursRow.classList.add('current-day');
+        // Add standard navigation controls
+        map.addControl(new maplibregl.NavigationControl());
 
-    // Reviews list render
-    let reviewsList = [...restData.reviews];
+        // Create a custom pulsing marker matching style.css styles
+        const el = document.createElement('div');
+        el.className = 'map-marker';
+        el.style.width = '16px';
+        el.style.height = '16px';
+        el.style.backgroundColor = 'var(--accent-amber-start)';
+        el.style.border = '3px solid #FFF';
+        el.style.borderRadius = '50%';
+        el.style.boxShadow = '0 0 15px var(--accent-amber-start)';
+        el.style.animation = 'pulseBeacon 2s infinite';
+
+        new maplibregl.Marker({ element: el })
+          .setLngLat([restData.longitude || 72.8208, restData.latitude || 18.9953])
+          .addTo(map);
+      } catch (err) {
+        console.error("Maplibre GL / OpenFreeMap initialization failed:", err);
+      }
+    }
+
+    // Dynamic restaurant details loader
+    async function loadRestaurant() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const restaurantId = urlParams.get('id') || 'aer-bar';
+      
+      let restData = RESTAURANTS[restaurantId];
+
+      if (!restData) {
+        // Fallback: search the backend database for this id
+        try {
+          const response = await fetch("http://localhost:5000/api/restaurants");
+          if (response.ok) {
+            const dbRestaurants = await response.json();
+            const found = dbRestaurants.find(r => r._id === restaurantId);
+            if (found) {
+              restData = {
+                name: found.name,
+                cuisine: Array.isArray(found.cuisines) ? found.cuisines.join(", ") : found.cuisines || "Fine Dining",
+                location: found.location,
+                rating: found.rating || 5.0,
+                img: found.image || "https://images.unsplash.com/photo-1414235077428-338989a2e8c0",
+                description: found.description || "Indulge in a premium dining experience with curations made exclusively for you.",
+                address: found.location,
+                capacity: found.tablesAvailable > 0 ? `${found.tablesAvailable} tables left` : "Seating Available",
+                latitude: found.latitude || 19.0760,
+                longitude: found.longitude || 72.8777,
+                reviews: [
+                  { name: "Guest of Honor", stars: 5, date: "July 10, 2026", text: "Excellent tandoori preparations and luxury service!" }
+                ]
+              };
+            }
+          }
+        } catch (err) {
+          console.error("Backend fetch error/offline fallback:", err);
+        }
+      }
+
+      // Default fallback
+      if (!restData) {
+        restData = RESTAURANTS['aer-bar'];
+      }
+
+      // Inject content
+      document.title = `${restData.name} | Byte-Bingers Details`;
+      document.getElementById('detail-name').textContent = restData.name;
+      document.getElementById('detail-cuisine').textContent = restData.cuisine;
+      document.getElementById('detail-location').textContent = restData.location;
+      document.getElementById('detail-description').textContent = restData.description;
+      document.getElementById('detail-image').src = restData.img;
+      document.getElementById('detail-map-label').textContent = `${restData.name} GPS Pin`;
+      document.getElementById('detail-address-label').textContent = restData.address;
+      document.getElementById('detail-capacity-status').textContent = restData.capacity;
+      document.getElementById('cta-book-btn').href = `booking-wizard.html?id=${restaurantId}`;
+
+      // Highlight current day of week in operating hours
+      const days = ['Sun', 'Mon', 'Mon', 'Mon', 'Mon', 'Fri', 'Fri'];
+      const currentDay = new Date().getDay();
+      const currentKey = days[currentDay];
+      const hoursRow = document.getElementById(`hours-${currentKey}`);
+      if (hoursRow) hoursRow.classList.add('current-day');
+
+      // Initialize reviews list and render
+      reviewsList = [...restData.reviews];
+      renderReviews();
+
+      // Initialize OpenFreeMap
+      initializeMap(restData);
+    }
     
     function renderReviews() {
       const listEl = document.getElementById('reviews-list');
@@ -748,8 +836,8 @@
       alert("Thank you! Your dining feedback has been posted live.");
     });
 
-    // Initial render
-    renderReviews();
+    // Initial load of restaurant and dynamic Maplibre GL map
+    loadRestaurant();
   </script>
 </body>
 </html>

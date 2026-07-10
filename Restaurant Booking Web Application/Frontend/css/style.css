@@ -198,7 +198,8 @@ a:hover {
 
 /* Buttons */
 .btn-gradient {
-  background: linear-gradient(135deg, var(--accent-amber-start) 0%, var(--accent-amber-end) 100%);
+  position: relative;
+  background: transparent;
   color: #000;
   font-family: var(--font-sans);
   font-weight: 600;
@@ -211,12 +212,31 @@ a:hover {
   transition: all 0.3s ease;
   text-align: center;
   display: inline-block;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--accent-amber-start) 0%, var(--accent-amber-end) 100%);
+  border-radius: inherit;
+  z-index: -2;
+  transition: all 0.3s ease;
 }
 
 .btn-gradient:hover {
-  transform: scale(1.03);
-  box-shadow: 0 6px 20px rgba(240, 120, 60, 0.6);
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255, 179, 71, 0.8), 0 0 10px rgba(240, 120, 60, 0.5);
   color: #000;
+}
+
+.btn-gradient:hover::before {
+  opacity: 0.95;
 }
 
 .btn-secondary-outline {
@@ -277,4 +297,11 @@ a:hover {
   background-position: right 1rem center;
   background-size: 1.2rem;
   padding-right: 2.5rem;
+}
+
+/* Fix dropdown options being unreadable (white text on white background in some browsers) */
+.input-premium option,
+.select-premium option {
+  background-color: #121317 !important;
+  color: var(--text-primary) !important;
 }

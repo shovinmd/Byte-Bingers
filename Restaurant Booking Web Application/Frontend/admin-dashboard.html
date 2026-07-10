@@ -323,6 +323,16 @@
             <input type="url" id="new-rest-img" class="input-premium" placeholder="e.g. http://domain.com/photo.jpg">
           </div>
 
+          <div class="form-group">
+            <label for="new-rest-lat">Latitude Coordinate</label>
+            <input type="number" step="any" id="new-rest-lat" class="input-premium" placeholder="e.g. 19.0760" value="19.0760" required>
+          </div>
+
+          <div class="form-group">
+            <label for="new-rest-lon">Longitude Coordinate</label>
+            <input type="number" step="any" id="new-rest-lon" class="input-premium" placeholder="e.g. 72.8777" value="72.8777" required>
+          </div>
+
           <div class="form-group" style="grid-column: 1 / -1;">
             <label for="new-rest-desc">Brief Sensory Description</label>
             <textarea id="new-rest-desc" class="input-premium" rows="2" placeholder="Describe the ambiance, tandoor clay-oven signature profiles, and historical details..." required style="resize:none;"></textarea>
@@ -414,11 +424,16 @@
     // Fetch and populate lists
     async function fetchRestaurants() {
       try {
-        const response = await fetch("http://localhost:5000/api/admin/restaurants");
+        const response = await fetch("http://localhost:5000/api/restaurants");
         if (response.ok) {
           const data = await response.json();
           // Map to local if DB works
-          RESTAURANTS = data.map(r => ({ id: r._id, name: r.name, cuisine: "Cuisine Desk", location: "Mumbai Location" }));
+          RESTAURANTS = data.map(r => ({ 
+            id: r._id, 
+            name: r.name, 
+            cuisine: Array.isArray(r.cuisines) ? r.cuisines.join(", ") : r.cuisines || "Fine Dining", 
+            location: r.location || "Mumbai Location" 
+          }));
         }
       } catch (err) {
         console.log("Simulating dynamic admin restaurants connection offline. Using fallbacks.");
@@ -491,7 +506,7 @@
       const confirmDel = confirm("Are you sure you want to de-register this establishment? This removes all active seating grids.");
       if (confirmDel) {
         try {
-          await fetch(`http://localhost:5000/api/admin/restaurants/${id}`, { method: "DELETE" });
+          await fetch(`http://localhost:5000/api/restaurants/${id}`, { method: "DELETE" });
         } catch(err) {
           console.log("Offline mode: Deleting local element.");
         }
@@ -530,25 +545,46 @@
       const cuisine = document.getElementById("new-rest-cuisine").value.trim();
       const loc = document.getElementById("new-rest-loc").value.trim();
       const desc = document.getElementById("new-rest-desc").value.trim();
+      const img = document.getElementById("new-rest-img").value.trim() || "https://images.unsplash.com/photo-1414235077428-338989a2e8c0";
+      const lat = parseFloat(document.getElementById("new-rest-lat").value) || 19.0760;
+      const lon = parseFloat(document.getElementById("new-rest-lon").value) || 72.8777;
 
       const newId = name.toLowerCase().replace(/\s+/g, '-');
+      const cuisinesArray = cuisine.split(',').map(c => c.trim()).filter(Boolean);
 
       try {
-        await fetch("http://localhost:5000/api/admin/restaurants", {
+        const response = await fetch("http://localhost:5000/api/restaurants", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name }) // matching basic original schema
+          body: JSON.stringify({ 
+            name, 
+            location: loc, 
+            cuisines: cuisinesArray, 
+            image: img, 
+            description: desc, 
+            latitude: lat, 
+            longitude: lon 
+          })
         });
+        
+        if (response.ok) {
+          const savedRest = await response.json();
+          RESTAURANTS.push({ id: savedRest._id, name, cuisine, location: loc });
+        } else {
+          console.log("Failed to onboard restaurant in DB. Falling back to local offline mode.");
+          RESTAURANTS.push({ id: newId, name, cuisine, location: loc });
+        }
       } catch(err) {
         console.log("Offline mode: Onboarding local element.");
+        RESTAURANTS.push({ id: newId, name, cuisine, location: loc });
       }
 
-      // Add locally
-      RESTAURANTS.push({ id: newId, name, cuisine, location: loc });
       renderRestaurants();
 
       // Reset
       document.getElementById("add-restaurant-form").reset();
+      document.getElementById("new-rest-lat").value = "19.0760";
+      document.getElementById("new-rest-lon").value = "72.8777";
       alert(`Successfully onboarded destination: ${name}`);
     });
 

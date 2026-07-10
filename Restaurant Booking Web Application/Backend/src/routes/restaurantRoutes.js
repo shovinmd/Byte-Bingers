@@ -23,4 +23,17 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Delete a restaurant (Admin)
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedRestaurant = await Restaurant.findByIdAndDelete(req.params.id);
+    if (!deletedRestaurant) {
+      return res.status(404).json({ error: "Restaurant not found" });
+    }
+    res.json({ message: "Restaurant deleted successfully", id: req.params.id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

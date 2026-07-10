@@ -116,7 +116,7 @@ button:hover {
   // Function to fetch reviews from the server
   const fetchReviews = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/reviews/${restaurantId}`);
+      const response = await fetch(`https://byte-bingers-k5ns.vercel.app/api/reviews/${restaurantId}`);
       const reviews = await response.json();
 
       // Clear the reviews list
@@ -149,7 +149,7 @@ button:hover {
     const rating = document.getElementById("rating").value;
 
     try {
-      const response = await fetch("http://localhost:5000/api/reviews", {
+      const response = await fetch("https://byte-bingers-k5ns.vercel.app/api/reviews", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -684,7 +684,7 @@
       if (!restData) {
         // Fallback: search the backend database for this id
         try {
-          const response = await fetch("http://localhost:5000/api/restaurants");
+          const response = await fetch("https://byte-bingers-k5ns.vercel.app/api/restaurants");
           if (response.ok) {
             const dbRestaurants = await response.json();
             const found = dbRestaurants.find(r => r._id === restaurantId);

@@ -11,7 +11,7 @@ document.getElementById("bookingForm").addEventListener("submit", function(event
     console.log('Booking details:', { name, email, date, time, guests });
   
     // Send the booking data to the backend using fetch
-    fetch('http://localhost:5000/api/book', {
+    fetch('https://byte-bingers-k5ns.vercel.app/api/book', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

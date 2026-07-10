@@ -1002,7 +1002,7 @@
         localStorage.setItem("activeBooking", JSON.stringify(newBooking));
 
         // Submit to API
-        fetch('http://localhost:5000/api/bookings', {
+        fetch('https://byte-bingers-k5ns.vercel.app/api/bookings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

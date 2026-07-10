@@ -5,7 +5,7 @@ document.getElementById('signup-form')?.addEventListener('submit', async (e) => 
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
   
-    const response = await fetch('http://localhost:5000/api/users/signup', {
+    const response = await fetch('https://byte-bingers-k5ns.vercel.app/api/users/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -22,7 +22,7 @@ document.getElementById('signup-form')?.addEventListener('submit', async (e) => 
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
   
-    const response = await fetch('http://localhost:5000/api/users/login', {
+    const response = await fetch('https://byte-bingers-k5ns.vercel.app/api/users/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -35,7 +35,7 @@ document.getElementById('signup-form')?.addEventListener('submit', async (e) => 
   // Fetch restaurants and display on restaurant-list page
   window.onload = async () => {
     if (document.getElementById('restaurant-list')) {
-      const response = await fetch('http://localhost:5000/api/restaurants');
+      const response = await fetch('https://byte-bingers-k5ns.vercel.app/api/restaurants');
       const restaurants = await response.json();
   
       const restaurantListElement = document.getElementById('restaurant-list');

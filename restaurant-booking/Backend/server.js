@@ -24,5 +24,10 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/reviews", reviewRoutes);
 
+// Welcome Route
+app.get("/", (req, res) => {
+  res.json({ message: "Byte-Bingers API is running successfully!" });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));

@@ -288,7 +288,7 @@
     // Helper to sync user with Backend and obtain JWT token
     async function syncFirebaseUserWithBackend(user, displayName = null) {
       try {
-        const response = await fetch("http://localhost:5000/api/auth/firebase-sync", {
+        const response = await fetch("https://byte-bingers-k5ns.vercel.app/api/auth/firebase-sync", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

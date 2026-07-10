@@ -425,7 +425,7 @@
     // Fetch and populate lists
     async function fetchRestaurants() {
       try {
-        const response = await fetch("http://localhost:5000/api/restaurants");
+        const response = await fetch("https://byte-bingers-k5ns.vercel.app/api/restaurants");
         if (response.ok) {
           const data = await response.json();
           // Map to local if DB works
@@ -444,7 +444,7 @@
 
     async function fetchReviews() {
       try {
-        const response = await fetch("http://localhost:5000/api/admin/reviews");
+        const response = await fetch("https://byte-bingers-k5ns.vercel.app/api/admin/reviews");
         if (response.ok) {
           const data = await response.json();
           REVIEWS_QUEUE = data.map((r, i) => ({ id: r._id, author: `Guest of Honor #${i+1}`, stars: 5, text: r.text }));
@@ -507,7 +507,7 @@
       const confirmDel = confirm("Are you sure you want to de-register this establishment? This removes all active seating grids.");
       if (confirmDel) {
         try {
-          await fetch(`http://localhost:5000/api/restaurants/${id}`, { method: "DELETE" });
+          await fetch(`https://byte-bingers-k5ns.vercel.app/api/restaurants/${id}`, { method: "DELETE" });
         } catch(err) {
           console.log("Offline mode: Deleting local element.");
         }
@@ -518,7 +518,7 @@
 
     async function approveReview(id) {
       try {
-        await fetch(`http://localhost:5000/api/admin/reviews/${id}/approve`, { method: "POST" });
+        await fetch(`https://byte-bingers-k5ns.vercel.app/api/admin/reviews/${id}/approve`, { method: "POST" });
       } catch(err) {
         console.log("Offline mode: Approving local element.");
       }
@@ -530,7 +530,7 @@
       const confirmRej = confirm("Confirm rejection and release of this feedback ticket?");
       if (confirmRej) {
         try {
-          await fetch(`http://localhost:5000/api/admin/reviews/${id}`, { method: "DELETE" });
+          await fetch(`https://byte-bingers-k5ns.vercel.app/api/admin/reviews/${id}`, { method: "DELETE" });
         } catch(err) {
           console.log("Offline mode: Rejecting local element.");
         }
@@ -554,7 +554,7 @@
       const cuisinesArray = cuisine.split(',').map(c => c.trim()).filter(Boolean);
 
       try {
-        const response = await fetch("http://localhost:5000/api/restaurants", {
+        const response = await fetch("https://byte-bingers-k5ns.vercel.app/api/restaurants", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 

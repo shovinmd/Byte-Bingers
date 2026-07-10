@@ -634,7 +634,7 @@
     async function fetchUserBookings() {
       const userId = localStorage.getItem("userId") || "mock-uid-100";
       try {
-        const response = await fetch(`http://localhost:5000/api/bookings/user/${userId}`);
+        const response = await fetch(`https://byte-bingers-k5ns.vercel.app/api/bookings/user/${userId}`);
         if (response.ok) {
           const data = await response.json();
           if (data && data.length > 0) {
@@ -694,7 +694,7 @@
         
         if (activeBookingId) {
           try {
-            const response = await fetch(`http://localhost:5000/api/bookings/${activeBookingId}`, {
+            const response = await fetch(`https://byte-bingers-k5ns.vercel.app/api/bookings/${activeBookingId}`, {
               method: "DELETE"
             });
             if (response.ok) {

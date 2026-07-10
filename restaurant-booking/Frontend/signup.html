@@ -302,7 +302,7 @@
 
         // Try syncing with backend database
         try {
-          const syncResponse = await fetch("http://localhost:5000/api/auth/firebase-sync", {
+          const syncResponse = await fetch("https://byte-bingers-k5ns.vercel.app/api/auth/firebase-sync", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

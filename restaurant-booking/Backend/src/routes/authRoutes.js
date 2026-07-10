@@ -54,7 +54,13 @@ router.post("/firebase-sync", async (req, res) => {
     // Check if user already exists by firebaseUid
     let user = await User.findOne({ firebaseUid });
 
-    if (!user) {
+    if (user) {
+      // Ensure admin@dining.com always has the admin role
+      if (email.toLowerCase() === "admin@dining.com" && user.role !== "admin") {
+        user.role = "admin";
+        await user.save();
+      }
+    } else {
       // Check if user exists by email (to link account if they used standard login earlier)
       user = await User.findOne({ email });
 
@@ -62,6 +68,9 @@ router.post("/firebase-sync", async (req, res) => {
         // Link firebaseUid to existing user account
         user.firebaseUid = firebaseUid;
         if (name && !user.name) user.name = name;
+        if (email.toLowerCase() === "admin@dining.com") {
+          user.role = "admin";
+        }
         await user.save();
       } else {
         // Determine role: default is user, unless email is admin@dining.com or explicitly role: admin

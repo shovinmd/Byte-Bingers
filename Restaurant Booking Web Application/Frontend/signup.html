@@ -228,6 +228,10 @@
 
   </div>
 
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
   <script>
     // Chef quotes fader database
     const QUOTES = [
@@ -262,6 +266,20 @@
       }, 1000);
     }, 6000);
 
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDwU841TMq6ys7eBUezVmASIzUzsWk95qY",
+      authDomain: "byte-bingers.firebaseapp.com",
+      projectId: "byte-bingers",
+      storageBucket: "byte-bingers.firebasestorage.app",
+      messagingSenderId: "83166456639",
+      appId: "1:83166456639:web:d64ecb65deb3fc2a21c18a"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
     // Form submission
     document.getElementById("signupForm").addEventListener("submit", async function(event) {
       event.preventDefault();
@@ -277,28 +295,38 @@
       }
       
       try {
-        const response = await fetch("http://localhost:5000/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password })
-        });
-        
-        const data = await response.json();
-        if (response.ok) {
-          alert("Profile successfully registered! Redirecting to sign in desk...");
-          window.location.href = "login.html";
-          return;
-        } else {
-          alert(data.message || "Registration failed. Please try again.");
-          return;
-        }
-      } catch (err) {
-        console.log("Database connection offline. Proceeding with client validation fallback.");
-      }
+        // Register in Firebase Auth
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
 
-      // Mock Fallback registration logic
-      alert("Profile successfully registered (Offline Fallback)! Redirecting to sign in desk...");
-      window.location.href = "login.html";
+        // Try syncing with backend database
+        try {
+          const syncResponse = await fetch("http://localhost:5000/api/auth/firebase-sync", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name,
+              email,
+              firebaseUid: user.uid
+            })
+          });
+
+          if (syncResponse.ok) {
+            alert("Profile successfully registered! Redirecting to sign in desk...");
+            window.location.href = "login.html";
+            return;
+          } else {
+            const data = await syncResponse.json();
+            alert("Firebase registered, but database sync failed: " + (data.error || "Unknown error"));
+          }
+        } catch (syncErr) {
+          console.log("Database connection offline. Proceeding with client validation fallback.", syncErr);
+          alert("Profile successfully registered (Offline Fallback)! Redirecting to sign in desk...");
+          window.location.href = "login.html";
+        }
+      } catch (authErr) {
+        alert("Registration Error: " + authErr.message);
+      }
     });
   </script>
 </body>

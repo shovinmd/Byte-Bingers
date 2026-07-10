@@ -5,9 +5,12 @@ const Review = require("../models/Review");
 // Get reviews for a restaurant
 router.get("/:restaurantId", async (req, res) => {
   try {
-    const reviews = await Review.find({ restaurant: req.params.restaurantId });
+    const reviews = await Review.find({ restaurant: req.params.restaurantId })
+      .populate("userID", "name")
+      .sort({ createdAt: -1 });
     res.json(reviews);
   } catch (err) {
+    console.error("Get Reviews Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -15,23 +18,14 @@ router.get("/:restaurantId", async (req, res) => {
 // Add a review
 router.post("/", async (req, res) => {
   try {
-    const newReview = new Review(req.body);
+    const { restaurant, userID, rating, comment } = req.body;
+    const newReview = new Review({ restaurant, userID, rating, comment });
     await newReview.save();
     res.json(newReview);
   } catch (err) {
+    console.error("Add Review Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
-
-router.get("/:restaurantId", async (req, res) => {
-    try {
-      const reviews = await Review.find({ restaurantId: req.params.restaurantId }).populate("userId", "name");
-      res.json(reviews);
-    } catch (error) {
-      console.error("Get Reviews Error:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
 
 module.exports = router;

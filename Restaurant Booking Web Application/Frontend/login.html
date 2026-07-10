@@ -207,6 +207,16 @@
           <button type="submit" class="btn-gradient btn-liquid" style="width: 100%; padding: 1rem 0; margin-top: 1rem;">
             Authenticate Account
           </button>
+
+          <div style="margin: 1.5rem 0; text-align: center; color: var(--text-secondary); font-size: 0.85rem; position: relative;">
+            <span style="background: var(--bg-dark); padding: 0 10px; z-index: 1; position: relative;">or</span>
+            <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255, 255, 255, 0.08); z-index: 0;"></div>
+          </div>
+
+          <button type="button" id="googleSignInBtn" class="btn-booking-action" style="width: 100%; padding: 0.8rem 0; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px;">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.99 5.99 0 0 1 8 12.5a5.99 5.99 0 0 1 5.99-6.015c1.47 0 2.8.533 3.829 1.411l3.22-3.22A10.957 10.957 0 0 0 13.99.5C7.92.5 3 5.42 3 11.5S7.92 22.5 13.99 22.5c5.96 0 10.825-4.8 10.825-11.015 0-.705-.082-1.39-.235-2.045H12.24z"/></svg>
+            Sign In with Google
+          </button>
         </form>
 
         <div class="auth-footer-links">
@@ -220,6 +230,10 @@
     </div>
 
   </div>
+
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
   <script>
     // Chef quotes fader database
@@ -256,49 +270,92 @@
       }, 1000); // matching opacity transition
     }, 6000);
 
-    // Form submission
-    document.getElementById("loginForm").addEventListener("submit", async function(event) {
-      event.preventDefault();
-      
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      
-      // Attempt to hit the backend
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDwU841TMq6ys7eBUezVmASIzUzsWk95qY",
+      authDomain: "byte-bingers.firebaseapp.com",
+      projectId: "byte-bingers",
+      storageBucket: "byte-bingers.firebasestorage.app",
+      messagingSenderId: "83166456639",
+      appId: "1:83166456639:web:d64ecb65deb3fc2a21c18a"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Helper to sync user with Backend and obtain JWT token
+    async function syncFirebaseUserWithBackend(user, displayName = null) {
       try {
-        const response = await fetch("http://localhost:5000/api/auth/login", {
+        const response = await fetch("http://localhost:5000/api/auth/firebase-sync", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({
+            name: displayName || user.displayName || user.email.split('@')[0],
+            email: user.email,
+            firebaseUid: user.uid
+          })
         });
-        
-        const data = await response.json();
+
         if (response.ok) {
+          const data = await response.json();
           localStorage.setItem("userToken", data.token);
           localStorage.setItem("userRole", data.user.role);
           localStorage.setItem("userName", data.user.name);
+          localStorage.setItem("userId", data.user._id);
+          localStorage.setItem("userEmail", data.user.email);
+
           alert("Sign in successful! Entering Concierge Desk...");
           if (data.user.role === 'admin') {
             window.location.href = "admin-dashboard.html";
           } else {
             window.location.href = "user-dashboard.html";
           }
-          return;
+        } else {
+          const data = await response.json();
+          alert(data.error || "Authentication sync failed.");
         }
       } catch (err) {
-        console.log("Database connection offline. Proceeding with client validation fallback.");
-      }
+        console.log("Database connection offline. Proceeding with client validation fallback.", err);
+        // Offline / Local Fallback
+        const role = user.email === 'admin@dining.com' ? 'admin' : 'user';
+        localStorage.setItem("userRole", role);
+        localStorage.setItem("userName", displayName || user.displayName || user.email.split('@')[0]);
+        localStorage.setItem("userId", "mock-uid-100");
+        localStorage.setItem("userEmail", user.email);
 
-      // Mock Fallback validation logic
-      if (email === 'admin@dining.com') {
-        localStorage.setItem("userRole", "admin");
-        localStorage.setItem("userName", "Executive Chef Admin");
-        alert("Authenticated as Administrator (Offline Fallback).");
-        window.location.href = "admin-dashboard.html";
-      } else {
-        localStorage.setItem("userRole", "user");
-        localStorage.setItem("userName", email.split('@')[0]);
-        alert(`Welcome back, ${email.split('@')[0]} (Offline Fallback).`);
-        window.location.href = "user-dashboard.html";
+        alert(`Welcome back, ${localStorage.getItem("userName")} (Offline Fallback).`);
+        if (role === 'admin') {
+          window.location.href = "admin-dashboard.html";
+        } else {
+          window.location.href = "user-dashboard.html";
+        }
+      }
+    }
+
+    // Email/Password Form submission
+    document.getElementById("loginForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      
+      try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        await syncFirebaseUserWithBackend(userCredential.user);
+      } catch (err) {
+        alert("Sign In Error: " + err.message);
+      }
+    });
+
+    // Google Sign-In button trigger
+    document.getElementById("googleSignInBtn").addEventListener("click", async function() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await auth.signInWithPopup(provider);
+        await syncFirebaseUserWithBackend(result.user);
+      } catch (err) {
+        alert("Google Sign-In Error: " + err.message);
       }
     });
   </script>

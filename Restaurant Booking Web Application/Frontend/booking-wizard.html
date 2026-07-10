@@ -1005,8 +1005,9 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userId: "mock-uid-100", // simulated logged in user
+            userId: localStorage.getItem("userId") || "mock-uid-100",
             restaurantId: selectedRestId,
+            restaurantName: restDisplayName,
             date: selectedDate,
             time: selectedTime,
             guests: guests,

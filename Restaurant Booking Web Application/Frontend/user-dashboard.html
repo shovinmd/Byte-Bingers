@@ -521,27 +521,10 @@
       document.getElementById("rewards-circle").style.strokeDashoffset = circleStrokeOffset;
     }, 300);
 
-    // Retrieve active booking from wizard submission or populate a default
+    // Retrieve active and past bookings dynamically
     let activeBooking = null;
-    const storedBooking = localStorage.getItem("activeBooking");
-    
-    if (storedBooking) {
-      activeBooking = JSON.parse(storedBooking);
-    } else {
-      // Mock booking for tomorrow evening
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const optDateStr = tomorrow.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-      activeBooking = {
-        restaurant: 'Aer Bar & Lounge',
-        date: optDateStr,
-        time: '07:00 PM',
-        table: 'Table T-2 (Main Floor)',
-        guests: '4',
-        code: 'CONCIERGE-X80E1C'
-      };
-      localStorage.setItem("activeBooking", JSON.stringify(activeBooking));
-    }
+    let activeBookingId = null;
+    let pastBookings = [];
 
     // Binding booking details
     const activeBlock = document.getElementById("active-booking-block");
@@ -564,6 +547,32 @@
       document.getElementById("booking-table-info").innerHTML = `Assigned Space: <strong>${activeBooking.table}</strong> | Code: <strong style="color:var(--text-primary);">${activeBooking.code}</strong>`;
     }
 
+    function renderPastBookings() {
+      const listEl = document.getElementById("past-bookings-list");
+      if (!pastBookings || pastBookings.length === 0) {
+        return; // Retain static mockup entries if database is empty
+      }
+
+      listEl.innerHTML = "";
+      pastBookings.forEach(booking => {
+        const item = document.createElement("div");
+        item.className = "card-premium history-item";
+        const isCancelled = booking.status === "Cancelled";
+        item.innerHTML = `
+          <div class="history-info">
+            <h4>${booking.restaurantName || "Dining Destination"}</h4>
+            <div class="history-meta">
+              <span>${booking.date}</span>
+              <span>${booking.guests} Guests</span>
+              <span>${booking.time}</span>
+            </div>
+          </div>
+          <span class="status-badge ${isCancelled ? 'cancelled' : 'completed'}">${isCancelled ? 'Released' : 'Fulfilled'}</span>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
     // Countdown Clock Ticker
     let countdownInterval = null;
 
@@ -574,9 +583,9 @@
       const minsVal = document.getElementById("timer-mins");
       const secsVal = document.getElementById("timer-secs");
 
-      // Parse booking date and time. Let's say: "July 8, 2026" & "07:00 PM"
-      const dateParts = activeBooking.date.replace(',', '').split(' '); // e.g. ["July", "8", "2026"]
-      const timeParts = activeBooking.time.split(' '); // e.g. ["07:00", "PM"]
+      // Parse booking date and time (e.g., "July 8, 2026" & "07:00 PM")
+      const dateParts = activeBooking.date.replace(',', '').split(' ');
+      const timeParts = activeBooking.time.split(' ');
       
       const monthNames = {
         'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
@@ -616,18 +625,86 @@
         secsVal.textContent = secs.toString().padStart(2, '0');
       }
 
-      // Run immediately
       updateClock();
       countdownInterval = setInterval(updateClock, 1000);
     }
 
-    // Cancel Active Reservation
-    document.getElementById("cancel-booking-btn").addEventListener("click", () => {
+    // Dynamic Database-Driven Booking Fetcher
+    async function fetchUserBookings() {
+      const userId = localStorage.getItem("userId") || "mock-uid-100";
+      try {
+        const response = await fetch(`http://localhost:5000/api/bookings/user/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            // Retrieve first active booking
+            const confirmed = data.find(b => b.status === "Confirmed");
+            if (confirmed) {
+              activeBookingId = confirmed._id;
+              activeBooking = {
+                restaurant: confirmed.restaurantName || "Premium Restaurant",
+                date: confirmed.date,
+                time: confirmed.time,
+                table: "Assigned Space (Desk Request)",
+                guests: confirmed.guests,
+                code: `CONCIERGE-${confirmed._id.substring(18).toUpperCase()}`
+              };
+            } else {
+              activeBooking = null;
+            }
+
+            // Map all other bookings to past history
+            pastBookings = data.filter(b => b._id !== activeBookingId);
+          }
+        }
+      } catch (err) {
+        console.log("Database connection offline. Using local mock bookings fallback.", err);
+        // Fallback to local storage
+        const storedBooking = localStorage.getItem("activeBooking");
+        if (storedBooking) {
+          activeBooking = JSON.parse(storedBooking);
+        } else {
+          // Default mock booking
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const optDateStr = tomorrow.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+          activeBooking = {
+            restaurant: 'Aer Bar & Lounge',
+            date: optDateStr,
+            time: '07:00 PM',
+            table: 'Table T-2 (Main Floor)',
+            guests: '4',
+            code: 'CONCIERGE-X80E1C'
+          };
+          localStorage.setItem("activeBooking", JSON.stringify(activeBooking));
+        }
+      }
+      
+      renderActiveBooking();
+      renderPastBookings();
+      startCountdown();
+    }
+
+    // Cancel Active Reservation via API
+    document.getElementById("cancel-booking-btn").addEventListener("click", async () => {
       const confirmRelease = confirm("Are you sure you want to release this reservation? Your Gold Tier rating will not be impacted, but seats are limited.");
       if (confirmRelease) {
         clearInterval(countdownInterval);
         
-        // Add to historical record as Released
+        if (activeBookingId) {
+          try {
+            const response = await fetch(`http://localhost:5000/api/bookings/${activeBookingId}`, {
+              method: "DELETE"
+            });
+            if (response.ok) {
+              alert("Booking released successfully in database.");
+            }
+          } catch (err) {
+            console.log("Offline release. Releasing from local memory only.", err);
+          }
+        }
+
+        // Add to historical record visually as Cancelled/Released
         const listEl = document.getElementById("past-bookings-list");
         const newItem = document.createElement("div");
         newItem.className = "card-premium history-item animate-fade-slide";
@@ -647,17 +724,17 @@
         // Delete from local storage
         localStorage.removeItem("activeBooking");
         activeBooking = null;
+        activeBookingId = null;
         renderActiveBooking();
         
-        // Update reward circle progress back down slightly as punishment
+        // Update reward circle progress
         document.getElementById("rewards-count").textContent = "6/10";
         document.getElementById("rewards-circle").style.strokeDashoffset = 440 - (440 * (6/10));
       }
     });
 
     // Run dashboard
-    renderActiveBooking();
-    startCountdown();
+    fetchUserBookings();
   </script>
 </body>
 </html>

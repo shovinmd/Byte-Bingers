@@ -641,6 +641,7 @@
     };
 
     let reviewsList = [];
+    let currentDbRestaurantId = null;
 
     // Initialize Maplibre Map using OpenFreeMap
     function initializeMap(restData) {
@@ -735,8 +736,46 @@
       const hoursRow = document.getElementById(`hours-${currentKey}`);
       if (hoursRow) hoursRow.classList.add('current-day');
 
-      // Initialize reviews list and render
+      // Initialize reviews list
       reviewsList = [...restData.reviews];
+
+      // Fetch dynamic reviews from the backend and map/combine
+      try {
+        const response = await fetch("https://byte-bingers-k5ns.vercel.app/api/restaurants");
+        if (response.ok) {
+          const dbRestaurants = await response.json();
+          let found = dbRestaurants.find(r => r._id === restaurantId);
+          if (!found && restData) {
+            found = dbRestaurants.find(r => r.name.toLowerCase().includes(restData.name.toLowerCase()));
+          }
+          if (found) {
+            currentDbRestaurantId = found._id;
+            const revResponse = await fetch(`https://byte-bingers-k5ns.vercel.app/api/reviews/${currentDbRestaurantId}`);
+            if (revResponse.ok) {
+              const dbReviews = await revResponse.json();
+              if (dbReviews && dbReviews.length > 0) {
+                const formattedDbReviews = dbReviews.map(r => ({
+                  name: r.userID?.name || "Guest of Honor",
+                  stars: r.rating,
+                  date: new Date(r.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+                  text: r.comment
+                }));
+                reviewsList = [...formattedDbReviews, ...reviewsList];
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Backend reviews fetch failed:", err);
+      }
+
+      // Auto-fill reviewer signature name if logged in
+      const savedName = localStorage.getItem("userName");
+      if (savedName) {
+        const nameInputEl = document.getElementById('reviewer-name-input');
+        if (nameInputEl) nameInputEl.value = savedName;
+      }
+
       renderReviews();
 
       // Initialize OpenFreeMap
@@ -811,25 +850,56 @@
 
     // Handle feedback submission
     const reviewForm = document.getElementById('add-review-form');
-    reviewForm.addEventListener('submit', (e) => {
+    reviewForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const nameInput = document.getElementById('reviewer-name-input');
       const textInput = document.getElementById('review-text-input');
       
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        alert("Please login first to submit a review!");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const commentText = textInput.value.trim();
       const newReview = {
         name: nameInput.value.trim(),
         stars: selectedRating,
         date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-        text: textInput.value.trim()
+        text: commentText
       };
+
+      // Try to save to backend database
+      if (currentDbRestaurantId) {
+        try {
+          const response = await fetch("https://byte-bingers-k5ns.vercel.app/api/reviews", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              restaurant: currentDbRestaurantId,
+              userID: userId,
+              rating: selectedRating,
+              comment: commentText
+            })
+          });
+          if (response.ok) {
+            console.log("Review saved to database successfully.");
+          } else {
+            console.warn("Database review submission failed, falling back to local only.");
+          }
+        } catch (err) {
+          console.error("Error submitting review to backend:", err);
+        }
+      }
 
       // Add to list (at start)
       reviewsList.unshift(newReview);
       renderReviews();
 
       // Reset form
-      nameInput.value = '';
+      nameInput.value = localStorage.getItem("userName") || '';
       textInput.value = '';
       selectedRating = 5;
       starBtns.forEach(b => b.classList.add('selected'));

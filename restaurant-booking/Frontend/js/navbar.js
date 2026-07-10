@@ -13,6 +13,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const isAdminDash = currentPath.includes("admin-dashboard.html");
   const isLogin = currentPath.includes("login.html") || currentPath.includes("signup.html");
 
+  const userToken = localStorage.getItem("userToken");
+  const userRole = localStorage.getItem("userRole");
+
+  let navLinksHtml = `
+    <li><a href="index.html" class="${isIndex ? 'active' : ''}">Discovery</a></li>
+    <li><a href="booking-wizard.html" class="${isBooking ? 'active' : ''}">Book Table</a></li>
+  `;
+
+  if (userToken) {
+    navLinksHtml += `<li><a href="user-dashboard.html" class="${isUserDash ? 'active' : ''}">Loyalty Hub</a></li>`;
+    if (userRole === 'admin') {
+      navLinksHtml += `<li><a href="admin-dashboard.html" class="${isAdminDash ? 'active' : ''}">Admin Desk</a></li>`;
+    }
+    navLinksHtml += `<li><a href="#" id="nav-logout-btn" class="nav-btn">Sign Out</a></li>`;
+  } else {
+    navLinksHtml += `<li><a href="login.html" class="nav-btn ${isLogin ? 'active' : ''}">Sign In</a></li>`;
+  }
+
   // Generate HTML
   navbarContainer.innerHTML = `
     <nav class="premium-nav" id="main-premium-nav">
@@ -21,14 +39,25 @@ document.addEventListener("DOMContentLoaded", () => {
         Byte-Bingers
       </a>
       <ul class="nav-links">
-        <li><a href="index.html" class="${isIndex ? 'active' : ''}">Discovery</a></li>
-        <li><a href="booking-wizard.html" class="${isBooking ? 'active' : ''}">Book Table</a></li>
-        <li><a href="user-dashboard.html" class="${isUserDash ? 'active' : ''}">Loyalty Hub</a></li>
-        <li><a href="admin-dashboard.html" class="${isAdminDash ? 'active' : ''}">Admin Desk</a></li>
-        <li><a href="login.html" class="nav-btn ${isLogin ? 'active' : ''}">Sign In</a></li>
+        ${navLinksHtml}
       </ul>
     </nav>
   `;
+
+  // Logout handler
+  const logoutBtn = document.getElementById("nav-logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userEmail");
+      alert("You have been signed out.");
+      window.location.href = "index.html";
+    });
+  }
 
   // Scroll effect
   const nav = document.getElementById("main-premium-nav");

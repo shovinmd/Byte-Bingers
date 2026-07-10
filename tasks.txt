@@ -1,0 +1,94 @@
+========================================================================
+             RESTAURANT BOOKING WEB APPLICATION - DEVELOPMENT GUIDE & TASKS
+========================================================================
+
+Hey Team! This guide outlines the current state of the "Byte-Bingers" project, 
+the database/hosting plan, and specific tasks assigned to each member to get the 
+application consolidated, bug-free, and deployed.
+
+------------------------------------------------------------------------
+1. PROJECT OVERVIEW & GOAL
+------------------------------------------------------------------------
+We are building a Restaurant Discovery & Table Booking Web Application.
+- Users can search for restaurants, book tables, and write reviews.
+- Admins can manage restaurants (add/delete) and moderate reviews.
+- Bookings trigger an automatic email confirmation using Nodemailer.
+
+------------------------------------------------------------------------
+2. DATABASE & DEPLOYMENT PLAN (To be completed by Shovin)
+------------------------------------------------------------------------
+- Database: Transitioning from local MongoDB to MongoDB Atlas (cloud database).
+- Backend Hosting: Deploying to Vercel or Render.
+- environment variables required in .env:
+  - MONGO_URI=<Your MongoDB Atlas connection string>
+  - FIREBASE_SERVICE_ACCOUNT_KEY=<Path to Firebase service account json or stringified json>
+  - EMAIL_USER=<Gmail address for Nodemailer>
+  - EMAIL_PASS=<Gmail app password for Nodemailer>
+  - PORT=5000
+
+------------------------------------------------------------------------
+3. CODING TASKS (To be completed by Team Members)
+------------------------------------------------------------------------
+
+TASK A: CONSOLIDATE THE BACKEND SERVERS
+Currently, there are three separate backends trying to run on Port 5000:
+1. Backend/server.js (Main API)
+2. Backend/admin/server.js (Duplicate Admin API)
+3. Frontend/app.js (Duplicate Booking Mailer)
+
+Action Items:
+- Merge all logic into a single server under "Backend/server.js".
+- Delete the redundant "Backend/admin/" folder and "Frontend/app.js" file.
+- Create a single "Backend/package.json" containing all required dependencies:
+  - express, mongoose, cors, dotenv, firebase-admin, nodemailer
+- Make sure to run "npm install" inside the consolidated Backend folder.
+
+TASK B: FIX THE WINDOWS FILE COLLISION
+Git contains two files with the same name but different cases:
+- Frontend/Booking.html
+- Frontend/booking.html
+On Windows, these collide and overwrite each other.
+
+Action Items:
+- Rename "Booking.html" (the database-driven one) to "restaurant-booking.html".
+- Delete "booking.html" (the duplicate static one).
+- Update the navigation links in "index.html" and "restaurant-list.html" to point to "restaurant-booking.html".
+
+TASK C: FIX CRITICAL BACKEND BUGS
+1. Admin Reviews:
+   - In "Backend/src/routes/adminRoutes.js", the Review model is used but NOT imported. Add:
+     const Review = require("../models/Review");
+2. Email Transporter Crash:
+   - "Backend/src/config/email.js" exports the function "sendEmail".
+   - "Backend/src/routes/bookingRoutes.js" imports it as "transporter" and tries to call "transporter.sendMail(...)". This will crash the server.
+   - Fix: Update "bookingRoutes.js" to call the "sendEmail" function directly.
+3. Booking Schema Mismatch:
+   - "Backend/src/routes/bookingRoutes.js" tries to save "userId" and "restaurantId" directly.
+   - However, "models/Booking.js" schema expects "restaurant" (ObjectId), "userName" (String), and "email" (String).
+   - Fix: Map "userId" and "restaurantId" correctly to the schema fields when creating a new Booking instance.
+4. Review Routes Mismatch:
+   - "Backend/src/routes/reviewRoutes.js" contains duplicate GET /:restaurantId routes.
+   - The field names used in "reviewRoutes.js" (userId, restaurantId) do not match the fields defined in the "Review.js" model (userID, restaurant). Update them to match the model.
+
+TASK D: INTEGRATE FRONTEND WITH BACKEND
+- Ensure "restaurant-booking.html" runs JavaScript to fetch restaurants from "http://localhost:5000/api/restaurants" and submit bookings to "http://localhost:5000/api/bookings".
+- In "adminDash.html", add headers to send the Firebase ID Token when fetching/deleting data, e.g.:
+  headers: { "Authorization": "Bearer " + firebaseIdToken }
+- Fix the logout redirect in "adminDash.html" to point to "login.html" instead of "admin-login.html".
+
+TASK E: IMPLEMENT FIREBASE AUTHENTICATION MIDDLEWARE
+- Set up Firebase Admin SDK in "Backend/server.js" (or "Backend/src/config/firebase.js") using the service account key.
+- Rewrite "verifyAdmin" middleware in "Backend/src/routes/adminRoutes.js" to use Firebase Admin SDK:
+  1. Retrieve Bearer token from Authorization header.
+  2. Verify token via admin.auth().verifyIdToken(token).
+  3. Check if the user has custom claims (e.g. { role: "admin" }) or check their user record in database/Firebase.
+- Update "login.html" and "signup.html" to use the Firebase Web client SDK to register and login users directly on the client side, then retrieve their ID Token.
+
+------------------------------------------------------------------------
+4. HOW TO RUN THE APPLICATION LOCALLY
+------------------------------------------------------------------------
+1. Open terminal in the consolidated "Backend/" folder:
+   - Run: npm install
+   - Run: node server.js (or npm run dev if nodemon is configured)
+2. Double-click "Frontend/index.html" to run the frontend in your browser.
+========================================================================

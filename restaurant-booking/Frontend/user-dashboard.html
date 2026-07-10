@@ -506,6 +506,13 @@
 
   <script src="js/navbar.js"></script>
   <script>
+    // Global Authentication Guard
+    const loggedInUser = localStorage.getItem("userId");
+    if (!loggedInUser) {
+      alert("Please sign up or sign in to access your Loyalty Hub and view bookings!");
+      window.location.href = "login.html";
+    }
+
     // Personalize dashboard on load
     const storedName = localStorage.getItem("userName") || "Sarah Jenkins";
     document.getElementById("profile-name").textContent = storedName;

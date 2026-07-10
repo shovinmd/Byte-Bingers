@@ -14,7 +14,8 @@ router.post("/", async (req, res) => {
       restaurantName: restaurantName || "Premium Dining Destination",
       date,
       time,
-      guests
+      guests,
+      email
     });
     await booking.save();
 
@@ -70,7 +71,7 @@ router.post("/", async (req, res) => {
       `;
 
       // Send to both user and admin
-      const recipients = [email, "shovinmicheldavid1285@gmail.com"].join(",");
+      const recipients = [email.trim(), "shovinmicheldavid1285@gmail.com"];
 
       const mailOptions = {
         from: `"No Reply - Byte-Bingers" <shovinmicheldavid1285@gmail.com>`,

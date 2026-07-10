@@ -215,6 +215,21 @@
       border-color: var(--accent-amber-end);
       color: var(--accent-amber-start);
     }
+    .verify-search-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 576px) {
+      .verify-search-row {
+        flex-direction: column;
+      }
+      .verify-search-row button {
+        width: 100%;
+        padding: 0.8rem 0 !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -370,7 +385,7 @@
         <!-- Search input -->
         <div class="form-group" style="width: 100%;">
           <label for="verify-ticket-input">Ticket ID / Scanned Text</label>
-          <div style="display: flex; gap: 10px; margin-top: 5px;">
+          <div class="verify-search-row">
             <input type="text" id="verify-ticket-input" class="input-premium" placeholder="e.g. CONCIERGE-A20D15 or paste scanned text" style="flex-grow: 1;">
             <button class="btn-gradient" id="btn-verify-submit" style="padding: 0 1.5rem; border-radius: 6px; white-space: nowrap;">Query Desk</button>
           </div>

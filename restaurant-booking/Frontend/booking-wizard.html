@@ -824,6 +824,13 @@
 
   <script src="js/navbar.js"></script>
   <script>
+    // Global Authentication Guard
+    const loggedInUser = localStorage.getItem("userId");
+    if (!loggedInUser) {
+      alert("Please sign up or sign in to our Loyalty Hub to unlock premium reservations!");
+      window.location.href = "signup.html";
+    }
+
     // Selections state registry
     const REST_NAMES = {
       'aer-bar': 'Aer Bar & Lounge',

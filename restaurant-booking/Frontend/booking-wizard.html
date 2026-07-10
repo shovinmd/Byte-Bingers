@@ -974,6 +974,18 @@
           return;
         }
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailVal)) {
+          alert("Please enter a valid email address.");
+          return;
+        }
+
+        const phoneRegex = /^\+?[0-9\s\-()]{10,18}$/;
+        if (!phoneRegex.test(phoneVal)) {
+          alert("Please enter a valid contact number (at least 10 digits).");
+          return;
+        }
+
         // Send booking details to DB via fetch if needed
         const guests = document.getElementById('guest-count-selection').value;
         const restrictions = document.getElementById('dietary-restriction').value;
@@ -988,7 +1000,15 @@
         
         // Random ticket ID
         const hash = Math.random().toString(36).substring(2, 8).toUpperCase();
-        document.getElementById('ticket-id-val').textContent = `CONCIERGE-${hash}`;
+        const ticketCode = `CONCIERGE-${hash}`;
+        document.getElementById('ticket-id-val').textContent = ticketCode;
+
+        // Generate dynamic QR Code using QRServer API
+        const qrDataString = `Ticket ID: ${ticketCode}\nGuest: ${nameVal}\nRestaurant: ${restDisplayName}\nDate: ${selectedDate}\nTime: ${selectedTime}\nSpace: Table ${selectedTableNum} (${selectedTableType})\nGuests: ${guests}`;
+        const qrMockDiv = document.querySelector('.qr-mock');
+        if (qrMockDiv) {
+          qrMockDiv.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${encodeURIComponent(qrDataString)}" alt="Booking QR Code" style="display: block; width: 130px; height: 130px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1);">`;
+        }
 
         // Save active booking in localStorage for the user dashboard count down
         const newBooking = {
@@ -997,7 +1017,7 @@
           time: selectedTime,
           table: `Table ${selectedTableNum} (${selectedTableType})`,
           guests: guests,
-          code: `CONCIERGE-${hash}`
+          code: ticketCode
         };
         localStorage.setItem("activeBooking", JSON.stringify(newBooking));
 
@@ -1014,7 +1034,7 @@
             guests: guests,
             email: emailVal
           })
-        }).catch(err => console.log("Simulating dynamic backend offline. Falling back to local tickets."));
+        }).catch(err => console.log("Failed to submit booking to backend:", err));
 
         currentStep = 4;
         showCurrentStep();

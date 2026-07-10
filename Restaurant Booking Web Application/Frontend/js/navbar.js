@@ -16,8 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Generate HTML
   navbarContainer.innerHTML = `
     <nav class="premium-nav" id="main-premium-nav">
-      <a href="index.html" class="nav-brand">
-        <span class="indicator-dot"></span> Byte-Bingers
+      <a href="index.html" class="nav-brand" style="display: flex; align-items: center; gap: 8px;">
+        <img src="logo.png" alt="Byte-Bingers Logo" style="height: 32px; width: 32px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,215,0,0.3);">
+        Byte-Bingers
       </a>
       <ul class="nav-links">
         <li><a href="index.html" class="${isIndex ? 'active' : ''}">Discovery</a></li>

@@ -294,6 +294,7 @@
     <nav class="tabs-wrapper animate-fade-slide stagger-3">
       <button class="tab-btn active" id="tab-btn-rest">Establishments Registry</button>
       <button class="tab-btn" id="tab-btn-rev">Moderation Board</button>
+      <button class="tab-btn" id="tab-btn-verify">Ticket Verification</button>
     </nav>
 
     <!-- Tab 1: Manage Restaurants -->
@@ -355,17 +356,56 @@
 
     </div>
 
-    <!-- Tab 2: Moderation Queue -->
-    <div class="tab-content-block animate-fade-slide stagger-4" id="tab-content-rev">
-      <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem; font-family: var(--font-serif);">Pending Dining Feedback</h3>
+    </div>
+
+    <!-- Tab 3: Ticket Verification -->
+    <div class="tab-content-block animate-fade-slide stagger-4" id="tab-content-verify">
+      <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem; font-family: var(--font-serif);">Reservation Ticket Scanner & Verification</h3>
       
-      <ul class="admin-data-list" id="admin-review-list">
-        <!-- Dynamic reviews moderation list items here -->
-      </ul>
+      <div class="card-premium admin-form-card" style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+        <p style="color: var(--text-secondary); text-align: center; font-size: 0.95rem;">
+          Scan a diner's concierge ticket QR code or manually enter the Reservation details to query the MongoDB backend.
+        </p>
+
+        <!-- Search input -->
+        <div class="form-group" style="width: 100%;">
+          <label for="verify-ticket-input">Ticket ID / Scanned Text</label>
+          <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <input type="text" id="verify-ticket-input" class="input-premium" placeholder="e.g. CONCIERGE-A20D15 or paste scanned text" style="flex-grow: 1;">
+            <button class="btn-gradient" id="btn-verify-submit" style="padding: 0 1.5rem; border-radius: 6px; white-space: nowrap;">Query Desk</button>
+          </div>
+        </div>
+
+        <!-- Camera Scanner Placeholder / Interactive element -->
+        <div style="width: 100%; border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; background: rgba(0,0,0,0.2);">
+          <div style="width: 100%; max-width: 250px; aspect-ratio: 1; border: 2px solid var(--accent-amber-start); border-radius: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000;">
+            <div id="qr-video-container" style="width: 100%; height: 100%; display: none;"></div>
+            <div id="scanner-placeholder-message" style="text-align: center; padding: 10px; color: var(--text-secondary); font-size: 0.85rem;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber-start)" stroke-width="1.5" style="margin-bottom: 8px; opacity: 0.7;">
+                <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M4 16v2a2 2 0 0 0 2 2h2M16 20h2a2 2 0 0 0 2-2v-2M8 12h8M12 8v8"/>
+              </svg>
+              <br>Camera Stream Offline
+            </div>
+          </div>
+          <button class="btn-secondary-outline" id="btn-toggle-camera" style="padding: 0.5rem 1rem; border-radius: 6px;">Initialize Camera Scan</button>
+        </div>
+
+        <!-- Verification Results Card -->
+        <div id="verification-result-box" class="card-premium" style="width: 100%; padding: 1.5rem; display: none; background: rgba(78, 204, 163, 0.05); border-color: var(--accent-teal);">
+          <h4 style="color: var(--accent-teal); font-size: 1.2rem; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            <span style="border: 1px solid var(--accent-teal); border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">✓</span>
+            Reservation Confirmed
+          </h4>
+          <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);" id="verification-result-details">
+            <!-- Results injected here -->
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
 
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="js/navbar.js"></script>
   <script>
     // Validate session
@@ -387,22 +427,27 @@
     // Tab toggling logic
     const restTabBtn = document.getElementById("tab-btn-rest");
     const revTabBtn = document.getElementById("tab-btn-rev");
+    const verifyTabBtn = document.getElementById("tab-btn-verify");
     const restTabContent = document.getElementById("tab-content-rest");
     const revTabContent = document.getElementById("tab-content-rev");
+    const verifyTabContent = document.getElementById("tab-content-verify");
 
-    restTabBtn.addEventListener("click", () => {
-      restTabBtn.classList.add("active");
-      revTabBtn.classList.remove("active");
-      restTabContent.classList.add("active");
-      revTabContent.classList.remove("active");
-    });
+    function setActiveTab(activeBtn, activeContent) {
+      [restTabBtn, revTabBtn, verifyTabBtn].forEach(btn => btn.classList.remove("active"));
+      [restTabContent, revTabContent, verifyTabContent].forEach(content => content.classList.remove("active"));
+      
+      activeBtn.classList.add("active");
+      activeContent.classList.add("active");
+      
+      // Stop QR scanner if navigating away from verification tab
+      if (activeBtn !== verifyTabBtn) {
+        stopQrScanner();
+      }
+    }
 
-    revTabBtn.addEventListener("click", () => {
-      revTabBtn.classList.add("active");
-      restTabBtn.classList.remove("active");
-      revTabContent.classList.add("active");
-      restTabContent.classList.remove("active");
-    });
+    restTabBtn.addEventListener("click", () => setActiveTab(restTabBtn, restTabContent));
+    revTabBtn.addEventListener("click", () => setActiveTab(revTabBtn, revTabContent));
+    verifyTabBtn.addEventListener("click", () => setActiveTab(verifyTabBtn, verifyTabContent));
 
     // Mock registries data models
     let RESTAURANTS = [
@@ -587,6 +632,137 @@
       document.getElementById("new-rest-lat").value = "19.0760";
       document.getElementById("new-rest-lon").value = "72.8777";
       alert(`Successfully onboarded destination: ${name}`);
+    });
+
+    // Ticket QR & Manual verification handlers
+    let html5QrcodeScanner = null;
+
+    function startQrScanner() {
+      const container = document.getElementById("qr-video-container");
+      const msg = document.getElementById("scanner-placeholder-message");
+      const btn = document.getElementById("btn-toggle-camera");
+
+      container.style.display = "block";
+      msg.style.display = "none";
+      btn.textContent = "Shut Down Camera Scanner";
+
+      html5QrcodeScanner = new Html5Qrcode("qr-video-container");
+      
+      html5QrcodeScanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 220, height: 220 }
+        },
+        qrCodeMessage => {
+          // Success
+          document.getElementById("verify-ticket-input").value = qrCodeMessage;
+          verifyTicket(qrCodeMessage);
+          stopQrScanner();
+        },
+        errorMessage => {
+          // Ignore parsing errors
+        }
+      ).catch(err => {
+        console.error("Camera Init Error: ", err);
+        alert("Unable to access camera device. Please paste or enter the ticket ID instead.");
+        stopQrScanner();
+      });
+    }
+
+    function stopQrScanner() {
+      if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+          html5QrcodeScanner = null;
+          document.getElementById("qr-video-container").style.display = "none";
+          document.getElementById("scanner-placeholder-message").style.display = "block";
+          document.getElementById("btn-toggle-camera").textContent = "Initialize Camera Scan";
+        }).catch(err => console.error(err));
+      } else {
+        document.getElementById("qr-video-container").style.display = "none";
+        document.getElementById("scanner-placeholder-message").style.display = "block";
+        document.getElementById("btn-toggle-camera").textContent = "Initialize Camera Scan";
+      }
+    }
+
+    async function verifyTicket(queryText) {
+      let searchCode = queryText.trim();
+      
+      // Parse ticket id from multi-line text if scanned fully
+      if (searchCode.includes("TICKET ID:")) {
+        const parts = searchCode.split("TICKET ID:");
+        if (parts.length > 1) {
+          searchCode = parts[1].split("\n")[0].trim();
+        }
+      }
+      
+      if (searchCode.startsWith("CONCIERGE-")) {
+        searchCode = searchCode.replace("CONCIERGE-", "").trim();
+      }
+
+      const resultBox = document.getElementById("verification-result-box");
+      const resultDetails = document.getElementById("verification-result-details");
+
+      resultBox.style.display = "none";
+
+      try {
+        const response = await fetch("https://byte-bingers-k5ns.vercel.app/api/bookings");
+        if (response.ok) {
+          const bookings = await response.json();
+          // Match by suffix of booking _id or exact match
+          const found = bookings.find(b => {
+            const shortId = b._id.substring(18).toUpperCase();
+            const bIdSuffix = b._id.toString().substring(0, 6).toUpperCase();
+            return shortId === searchCode || bIdSuffix === searchCode || b._id === searchCode;
+          });
+
+          resultBox.style.display = "block";
+          if (found) {
+            resultBox.style.background = "rgba(78, 204, 163, 0.05)";
+            resultBox.style.borderColor = "var(--accent-teal)";
+            resultBox.querySelector("h4").innerHTML = `
+              <span style="border: 1px solid var(--accent-teal); border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--accent-teal); margin-right: 6px;">✓</span>
+              Reservation Confirmed
+            `;
+            resultDetails.innerHTML = `
+              <p><strong>Establishment:</strong> ${found.restaurantName || "Premium Restaurant"}</p>
+              <p><strong>Diner Email:</strong> ${found.email || "Registered User"}</p>
+              <p><strong>Date:</strong> ${found.date}</p>
+              <p><strong>Time:</strong> ${found.time}</p>
+              <p><strong>Guests:</strong> ${found.guests} Guests</p>
+              <p><strong>Status:</strong> ${found.status}</p>
+            `;
+          } else {
+            resultBox.style.background = "rgba(240, 120, 60, 0.05)";
+            resultBox.style.borderColor = "var(--accent-amber-end)";
+            resultBox.querySelector("h4").innerHTML = `
+              <span style="border: 1px solid var(--accent-amber-end); border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--accent-amber-end); margin-right: 6px;">✗</span>
+              Ticket Not Found
+            `;
+            resultDetails.innerHTML = `<p>No matching active reservation found for code: <strong>${searchCode}</strong>.</p>`;
+          }
+        }
+      } catch (err) {
+        console.error("Verification Error:", err);
+        alert("Error fetching database records.");
+      }
+    }
+
+    document.getElementById("btn-toggle-camera").addEventListener("click", () => {
+      if (html5QrcodeScanner) {
+        stopQrScanner();
+      } else {
+        startQrScanner();
+      }
+    });
+
+    document.getElementById("btn-verify-submit").addEventListener("click", () => {
+      const val = document.getElementById("verify-ticket-input").value;
+      if (!val) {
+        alert("Please enter a ticket code first.");
+        return;
+      }
+      verifyTicket(val);
     });
 
     // Run

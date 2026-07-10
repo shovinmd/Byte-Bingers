@@ -1057,6 +1057,16 @@
 
     // Handle early load queries
     showCurrentStep();
+
+    // Pre-populate if logged in
+    const storedName = localStorage.getItem("userName");
+    const storedEmail = localStorage.getItem("userEmail");
+    if (storedName) {
+      document.getElementById('diner-name').value = storedName;
+    }
+    if (storedEmail) {
+      document.getElementById('diner-email').value = storedEmail;
+    }
   </script>
 </body>
 </html>

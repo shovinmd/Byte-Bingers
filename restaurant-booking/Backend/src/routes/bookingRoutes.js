@@ -96,6 +96,17 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Get all bookings (Admin only)
+router.get("/", async (req, res) => {
+  try {
+    const bookings = await Booking.find().sort({ createdAt: -1 });
+    res.json(bookings);
+  } catch (err) {
+    console.error("Get All Bookings Error:", err);
+    res.status(500).json({ error: "Server Error fetching all bookings" });
+  }
+});
+
 // Get bookings for a specific user
 router.get("/user/:userId", async (req, res) => {
   try {

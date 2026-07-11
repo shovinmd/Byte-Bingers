@@ -38,11 +38,42 @@ document.addEventListener("DOMContentLoaded", () => {
         <img src="logo.png" alt="Byte-Bingers Logo" style="height: 32px; width: 32px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,215,0,0.3);">
         Byte-Bingers
       </a>
-      <ul class="nav-links">
+      <button class="nav-toggle-btn" id="nav-menu-toggle" aria-label="Toggle navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-links" id="nav-links-menu">
         ${navLinksHtml}
       </ul>
     </nav>
   `;
+
+  // Hamburger toggle logic
+  const menuToggle = document.getElementById("nav-menu-toggle");
+  const navLinksMenu = document.getElementById("nav-links-menu");
+  if (menuToggle && navLinksMenu) {
+    menuToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menuToggle.classList.toggle("active");
+      navLinksMenu.classList.toggle("active");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!menuToggle.contains(e.target) && !navLinksMenu.contains(e.target)) {
+        menuToggle.classList.remove("active");
+        navLinksMenu.classList.remove("active");
+      }
+    });
+
+    navLinksMenu.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        menuToggle.classList.remove("active");
+        navLinksMenu.classList.remove("active");
+      });
+    });
+  }
+
 
   // Logout handler
   const logoutBtn = document.getElementById("nav-logout-btn");

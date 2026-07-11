@@ -339,6 +339,49 @@
       background: rgba(255, 255, 255, 0.01);
       display: none;
     }
+
+    /* Mobile Responsive Overrides */
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 6.5rem 1rem 3rem 1rem;
+        gap: 2rem;
+      }
+      .active-booking-card {
+        padding: 1.8rem 1.5rem;
+      }
+      .booking-details-block {
+        width: 100%;
+      }
+      .countdown-widget {
+        width: 100%;
+        min-width: unset;
+        margin-top: 1rem;
+        padding: 1.2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .booking-info-row {
+        gap: 0.8rem;
+      }
+      .booking-details-block div[style*="display:flex"],
+      .booking-details-block div[style*="display: flex"] {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px !important;
+      }
+      .booking-details-block button {
+        width: 100%;
+        padding: 0.7rem 1rem;
+      }
+      .history-item {
+        align-items: stretch;
+      }
+      .history-item .status-badge {
+        align-self: flex-start;
+        margin-top: 0.5rem;
+      }
+    }
   </style>
 </head>
 <body>
